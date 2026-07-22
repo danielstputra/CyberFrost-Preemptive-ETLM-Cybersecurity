@@ -15,6 +15,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
@@ -50,6 +52,17 @@ jobs:
           path: Frontend/android/.gradle
           key: ${{ runner.os }}-gradle-${{ hashFiles('Frontend/android/**/*.gradle*') }}
 
+      - name: Generate version
+        id: version
+        run: |
+          COMMIT_COUNT=$(git rev-list --count HEAD)
+          DATE_TAG=$(date +'%Y.%m.%d')
+          VERSION_CODE=$COMMIT_COUNT
+          VERSION_NAME="${DATE_TAG}-build${COMMIT_COUNT}"
+          echo "versionCode=$VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "versionName=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION_NAME (code: $VERSION_CODE)"
+
       - name: Build Next.js static export
         run: |
           mv src/proxy.ts src/proxy.ts.bak || true
@@ -59,38 +72,46 @@ jobs:
       - name: Copy export to out/
         run: |
           node scripts/copy-export.js
-          # Pastikan out/index.html ada
-          if [ ! -f out/index.html ] && [ -f out/index/index.html ]; then
-            cp out/index/index.html out/index.html
-            echo "Created out/index.html from out/index/"
-          fi
-          if [ ! -f out/index.html ]; then
-            echo "ERROR: out/index.html not found!"
-            ls -la out/ 2>/dev/null || echo "out/ empty or missing"
-            exit 1
-          fi
+          if [ ! -f out/index.html ]; then echo "ERROR: out/index.html missing!"; exit 1; fi
           echo "out/index.html OK"
 
-      - name: Add Android platform + Sync
+      - name: Add Android + Sync
         run: |
-          pwd
-          ls -la out/index.html 2>/dev/null && echo "out/index.html OK" || exit 1
-          # Hapus android/ jika ada (corrupt dari run sebelumnya)
           rm -rf android
           npx cap add android 2>&1
           npx cap sync android 2>&1
           ls -la android/gradlew 2>/dev/null && echo "gradlew OK" || exit 1
 
-      - name: Build APK
+      - name: Set version in build.gradle
+        run: |
+          cd android/app
+          sed -i "s/versionCode [0-9]*/versionCode ${{ steps.version.outputs.versionCode }}/" build.gradle
+          sed -i "s/versionName \"[^\"]*\"/versionName \"${{ steps.version.outputs.versionName }}\"/" build.gradle
+          echo "Version set to: ${{ steps.version.outputs.versionName }} (code: ${{ steps.version.outputs.versionCode }})"
+
+      - name: Build Debug APK
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
-      - name: Upload APK
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: cyberfrost-apk-debug
+          name: cyberfrost-apk-debug-v${{ steps.version.outputs.versionName }}
           path: Frontend/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Build Release APK (unsigned)
+        run: |
+          cd android
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: cyberfrost-apk-release-unsigned-v${{ steps.version.outputs.versionName }}
+          path: Frontend/android/app/build/outputs/apk/release/app-release-unsigned.apk
           if-no-files-found: warn
           retention-days: 30
