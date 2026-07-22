@@ -104,3 +104,15 @@ jobs:
           path: Frontend/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: warn
           retention-days: 30
+
+      - name: Create GitHub Release
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v${{ steps.version.outputs.versionName }}"
+          gh release create "$TAG" \
+            --title "CyberFrost $TAG" \
+            --notes "Automated build from commit ${{ github.sha }}" \
+            Frontend/android/app/build/outputs/apk/debug/app-debug.apk \
+            --target ${{ github.sha }} || echo "Release exists or failed, skipping"
