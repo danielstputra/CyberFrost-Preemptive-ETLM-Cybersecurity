@@ -53,7 +53,7 @@ jobs:
       - name: Build Next.js static export
         run: |
           mv src/proxy.ts src/proxy.ts.bak || true
-          NEXT_PUBLIC_API_URL=https://humble-wonder-production-913c.up.railway.app pnpm build
+          APK_BUILD=true NEXT_PUBLIC_API_URL=https://humble-wonder-production-913c.up.railway.app pnpm build
           mv src/proxy.ts.bak src/proxy.ts || true
 
       - name: Copy export to out/
