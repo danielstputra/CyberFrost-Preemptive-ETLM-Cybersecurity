@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0B0F14"/>
+      <stop offset="100%" style="stop-color:#0F1420"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00F6FF"/>
+      <stop offset="100%" style="stop-color:#0099FF"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="200" fill="url(#bg)"/>
+  <!-- Shield -->
+  <path d="M512 80 L850 240 L850 480 C850 740 512 920 512 920 C512 920 174 740 174 480 L174 240 Z"
+        fill="none" stroke="url(#cyan)" stroke-width="20"/>
+  <path d="M512 180 L740 290 L740 460 C740 660 512 800 512 800 C512 800 284 660 284 460 L284 290 Z"
+        fill="rgba(0,246,255,0.03)" stroke="url(#cyan)" stroke-width="6"/>
+  <text x="512" y="560" font-family="monospace" font-size="240" font-weight="bold"
+        fill="url(#cyan)" text-anchor="middle">CF</text>
+</svg>

@@ -1,0 +1,12 @@
+{
+  "name": "CyberFrost Security Platform",
+  "short_name": "CyberFrost",
+  "description": "Preemptive External Threat Landscape Management",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B0F14",
+  "theme_color": "#00F6FF",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

@@ -27,6 +27,14 @@ const shareTechMono = Share_Tech_Mono({
 export const metadata: Metadata = {
   title: `${process.env.NEXT_PUBLIC_APP_NAME || 'CyberFrost'} — Security Intelligence Platform`,
   description: "Preemptive External Threat Landscape Management",
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/icon.svg', type: 'image/svg+xml', sizes: '1024x1024' },
+    ],
+    apple: '/icon.svg',
+  },
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
