@@ -1,8 +1,9 @@
 {
   "framework": "nextjs",
-  "buildCommand": "next build",
-  "outputDirectory": ".next",
-  "installCommand": "pnpm install --force",
+  "rootDirectory": "Frontend",
+  "buildCommand": "cd Frontend && pnpm build",
+  "outputDirectory": "Frontend/.next",
+  "installCommand": "cd Frontend && pnpm install",
   "env": {
     "NEXT_PUBLIC_API_URL": "https://humble-wonder-production-913c.up.railway.app",
     "NEXT_PUBLIC_WS_URL": "https://humble-wonder-production-913c.up.railway.app",
