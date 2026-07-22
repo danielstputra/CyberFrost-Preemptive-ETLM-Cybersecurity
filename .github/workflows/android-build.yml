@@ -73,24 +73,19 @@ jobs:
 
       - name: Add Android platform + Sync
         run: |
-          echo "=== Current dir ==="
           pwd
-          ls -la out/index.html 2>/dev/null && echo "out/index.html OK" || echo "out/index.html MISSING"
-          echo ""
-          echo "=== Add Android ==="
+          ls -la out/index.html 2>/dev/null && echo "out/index.html OK" || exit 1
+          # Hapus android/ jika ada (corrupt dari run sebelumnya)
+          rm -rf android
           npx cap add android 2>&1
-          echo ""
-          echo "=== Sync ==="
           npx cap sync android 2>&1
-          echo ""
-          echo "=== Verify ==="
-          ls -la android/gradlew 2>/dev/null && echo "gradlew OK" || echo "gradlew MISSING"
+          ls -la android/gradlew 2>/dev/null && echo "gradlew OK" || exit 1
 
       - name: Build APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
