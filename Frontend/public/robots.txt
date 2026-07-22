@@ -1,0 +1,13 @@
+# *
+User-agent: *
+Allow: /
+
+# *
+User-agent: *
+Disallow: /dashboard
+
+# Host
+Host: https://cyberfrost.io
+
+# Sitemaps
+Sitemap: https://cyberfrost.io/sitemap.xml
