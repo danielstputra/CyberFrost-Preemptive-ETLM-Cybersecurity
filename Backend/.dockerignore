@@ -1,0 +1,15 @@
+*.md
+*.mdx
+postman-collection.json
+.env.example
+.env.railway
+.env.railway-raw
+.git
+.gitignore
+node_modules/
+tests/
+scripts/
+tsconfig.test.json
+.eslintrc*
+.prettierrc*
+.husky/

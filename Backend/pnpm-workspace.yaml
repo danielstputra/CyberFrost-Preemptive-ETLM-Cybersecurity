@@ -1,0 +1,13 @@
+packages:
+  - "api-gateway"
+  - "services/*"
+  - "shared"
+allowBuilds:
+  '@prisma/client': false
+  '@prisma/engines': false
+  '@scarf/scarf': true
+  esbuild: false
+  msgpackr-extract: true
+  prisma: false
+  puppeteer: false
+  unrs-resolver: false

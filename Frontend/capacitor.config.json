@@ -1,0 +1,18 @@
+{
+  "appId": "com.cyberfrost.app",
+  "appName": "CyberFrost",
+  "webDir": "out",
+  "server": {
+    "url": "https://humble-wonder-production-913c.up.railway.app",
+    "cleartext": false
+  },
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#0B0F14"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "next build",
+  "outputDirectory": ".next",
+  "installCommand": "pnpm install --force",
+  "env": {
+    "NEXT_PUBLIC_API_URL": "https://humble-wonder-production-913c.up.railway.app",
+    "NEXT_PUBLIC_WS_URL": "https://humble-wonder-production-913c.up.railway.app",
+    "NEXT_PUBLIC_APP_NAME": "CyberFrost",
+    "NEXT_PUBLIC_APP_ENV": "production"
+  }
+}

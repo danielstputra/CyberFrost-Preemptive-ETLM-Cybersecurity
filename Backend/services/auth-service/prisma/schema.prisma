@@ -1,0 +1,189 @@
+// ─────────────────────────────────────────────────────────────
+//  Auth Service — Prisma Schema (PostgreSQL)
+//  Multi-Tenant RBAC: Role-based access with tenant isolation
+// ─────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("AUTH_DATABASE_URL")
+}
+
+// ── Enums ──
+
+enum UserRole {
+  SUPER_ADMIN
+  SOC_MANAGER
+  SOC_ANALYST
+  TENANT_ADMIN
+  SECURITY_OPERATOR
+  COMPLIANCE_OFFICER
+  EXECUTIVE_VIEWER
+}
+
+enum UserType {
+  INTERNAL
+  EXTERNAL
+}
+
+enum Permission {
+  // Tenant management
+  MANAGE_TENANTS
+  VIEW_TENANTS
+
+  // User management
+  MANAGE_USERS
+  VIEW_USERS
+
+  // Takedown operations
+  REQUEST_TAKEDOWN
+  REVIEW_TAKEDOWN
+  APPROVE_TAKEDOWN
+  VIEW_TAKEDOWN
+
+  // Threat intelligence
+  VIEW_THREATS
+  MANAGE_THREATS
+
+  // Scan operations
+  REQUEST_SCAN
+  VIEW_SCAN_RESULTS
+
+  // AI & Insights
+  VIEW_AI_INSIGHTS
+  GENERATE_AI_INSIGHTS
+
+  // Notifications
+  VIEW_NOTIFICATIONS
+  MANAGE_NOTIFICATIONS
+
+  // Reporting & Compliance
+  VIEW_REPORTS
+  EXPORT_REPORTS
+
+  // Settings
+  VIEW_SETTINGS
+  MANAGE_SETTINGS
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELED
+}
+
+enum SubscriptionPlan {
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+// ── Role-Permission Mapping ──
+
+// Defines which permissions each role has
+model RolePermission {
+  id         String     @id @default(uuid())
+  role       UserRole
+  permission Permission
+  userType   UserType   @default(EXTERNAL)
+
+  @@unique([role, permission])
+  @@map("role_permissions")
+}
+
+// ── Models ──
+
+/// Organisasi / Perusahaan klien
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  logoUrl   String?
+  isActive  Boolean  @default(true)
+  plan      SubscriptionPlan @default(PROFESSIONAL)
+  maxUsers  Int      @default(10)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users         User[]
+  subscriptions Subscription[]
+  configurations Configuration[]
+
+  @@map("tenants")
+}
+
+/// Pengguna — mendukung internal (tanpa tenant) dan eksternal (dengan tenant)
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  passwordHash      String
+  name              String
+  role              UserRole  @default(SECURITY_OPERATOR)
+  userType          UserType  @default(EXTERNAL)
+  isActive          Boolean   @default(true)
+  avatarUrl         String?
+  lastLoginAt       DateTime?
+  refreshTokenHash  String?
+  totpSecret        String?
+  totpEnabled       Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  apiTokens ApiToken[]
+
+  @@map("users")
+}
+
+/// Langganan / Paket layanan tiap Tenant
+model Subscription {
+  id        String             @id @default(uuid())
+  plan      SubscriptionPlan   @default(PROFESSIONAL)
+  status    SubscriptionStatus @default(TRIALING)
+  startDate DateTime           @default(now())
+  endDate   DateTime?
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+/// API Tokens untuk integrasi eksternal
+model ApiToken {
+  id         String   @id @default(uuid())
+  name       String
+  tokenHash  String
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("api_tokens")
+}
+
+/// Konfigurasi khusus per Tenant
+model Configuration {
+  id        String   @id @default(uuid())
+  key       String
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, key])
+  @@map("configurations")
+}

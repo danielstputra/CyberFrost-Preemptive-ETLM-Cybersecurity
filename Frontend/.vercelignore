@@ -1,0 +1,9 @@
+*.md
+*.mdx
+postman-collection.json
+.env.example
+.env.railway
+.git
+.gitignore
+node_modules/
+tests/

@@ -1,0 +1,1580 @@
+{
+  "info": {
+    "name": "CyberFrost Backend API",
+    "description": "## CyberFrost Backend API\n\nPreemptive ETLM Platform -- Auth, Discovery, Intelligence, OSINT, Notifications, Action & Mitigation, AI Service.\n\n### Usage\n\n1. **Set Environment Variables**\n   - `baseUrl`: `http://localhost:4000` (API Gateway)\n   - `token`: (auto-set after login via test scripts)\n\n2. **Recommended Test Flow**\n   - **Auth** -> Register or Login (token auto-saves)\n   - **Discovery** -> Start scan, check results\n   - **Intelligence** -> View dashboard, list CVEs\n   - **OSINT** -> Start OSINT scan, view leaks\n   - **AI Service** -> Generate AI insights\n   - **Notifications** -> Send test notification, view list\n   - **Action & Mitigation** -> Submit takedown, block IP\n\n> All endpoints except Auth register/login and Health require `Authorization: Bearer {{token}}`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "description": "Health check endpoints for monitoring service availability.",
+      "item": [
+        {
+          "name": "API Gateway Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "health"]
+            }
+          }
+        },
+        {
+          "name": "Liveness Probe",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/health/live",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "health", "live"]
+            }
+          }
+        },
+        {
+          "name": "Readiness Probe",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/health/ready",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "health", "ready"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "description": "Multi-tenant authentication. Register creates a company + admin user. Login returns JWT access and refresh tokens.",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var json = pm.response.json();",
+                  "  if (json.accessToken) {",
+                  "    pm.collectionVariables.set('token', json.accessToken);",
+                  "    pm.collectionVariables.set('tenantId', json.user?.tenantId || json.tenant?.id || '');",
+                  "    console.log('Token saved from register');",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@company.com\",\n  \"password\": \"Cyber123!\",\n  \"name\": \"Admin User\",\n  \"tenantName\": \"Company Inc\",\n  \"tenantSlug\": \"company-inc\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var json = pm.response.json();",
+                  "  if (json.accessToken) {",
+                  "    pm.collectionVariables.set('token', json.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', json.refreshToken || '');",
+                  "    pm.collectionVariables.set('tenantId', json.user?.tenant?.id || json.user?.tenantId || '');",
+                  "    console.log('Token saved from login');",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@company.com\",\n  \"password\": \"Cyber123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Get Profile (Me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile (PUT /me)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Admin Name\",\n  \"email\": \"admin@company.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"Cyber123!\",\n  \"newPassword\": \"NewPass456!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/change-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "change-password"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Organization",
+      "description": "Organization (Tenant) management. Create and manage organizations/tenants via the auth system.",
+      "item": [
+        {
+          "name": "Create Organization",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var json = pm.response.json();",
+                  "  pm.collectionVariables.set('organizationId', json.tenant?.id || json.id || '');",
+                  "  if (json.accessToken) {",
+                  "    pm.collectionVariables.set('token', json.accessToken);",
+                  "  }",
+                  "  console.log('Organization created: ' + (json.tenant?.id || json.id));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"org-admin@company.com\",\n  \"password\": \"Cyber123!\",\n  \"name\": \"Org Admin\",\n  \"tenantName\": \"Org Inc\",\n  \"tenantSlug\": \"org-inc\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Discovery",
+      "description": "Attack Surface Discovery -- Subdomain enumeration, port scanning, and asset discovery using BullMQ for async processing.",
+      "item": [
+        {
+          "name": "Start Domain Scan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 202) {",
+                  "  var json = pm.response.json();",
+                  "  if (json.jobId) {",
+                  "    pm.collectionVariables.set('scanJobId', json.jobId);",
+                  "    console.log('Scan Job ID: ' + json.jobId);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"domain\": \"example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/discovery/scan",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "discovery", "scan"]
+            }
+          }
+        },
+        {
+          "name": "Get Scan Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/discovery/scan/{{scanJobId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "discovery", "scan", "{{scanJobId}}"]
+            }
+          }
+        },
+        {
+          "name": "List All Scans",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/discovery/scans?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "discovery", "scans"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Discovered Domains",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/discovery/domains?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "discovery", "domains"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Domain Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/discovery/domains/{{domainId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "discovery", "domains", "{{domainId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "EASM (Discovery)",
+      "description": "External Attack Surface Management -- Shadow IT, digital footprint, misconfiguration detection.",
+      "item": [
+        {
+          "name": "List Shadow IT Assets",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/discovery/easm/shadow-it",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "discovery", "easm", "shadow-it"]
+            }
+          }
+        },
+        {
+          "name": "Assign Shadow IT Owner",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"owner\": \"security-team\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/discovery/easm/shadow-it/{{shadowItId}}/owner",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "discovery", "easm", "shadow-it", "{{shadowItId}}", "owner"]
+            }
+          }
+        },
+        {
+          "name": "Digital Footprint Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/discovery/easm/digital-footprint",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "discovery", "easm", "digital-footprint"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Intelligence",
+      "description": "Vulnerability Intelligence (CVE) and Threat Intelligence. Supports pagination, severity filtering, and search.",
+      "item": [
+        {
+          "name": "Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/intelligence/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "intelligence", "dashboard"]
+            }
+          }
+        },
+        {
+          "name": "List Vulnerabilities",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/intelligence/vulnerabilities?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "intelligence", "vulnerabilities"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Critical + Exploit",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/intelligence/vulnerabilities?severity=CRITICAL&exploitAvailable=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "intelligence", "vulnerabilities"],
+              "query": [
+                { "key": "severity", "value": "CRITICAL" },
+                { "key": "exploitAvailable", "value": "true" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Vulnerabilities",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/intelligence/vulnerabilities?search=Apache",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "intelligence", "vulnerabilities"],
+              "query": [
+                { "key": "search", "value": "Apache" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Vulnerability Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/intelligence/vulnerabilities/{{vulnId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "intelligence", "vulnerabilities", "{{vulnId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Vulnerability Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"REVIEWING\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/intelligence/vulnerabilities/{{vulnId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "intelligence", "vulnerabilities", "{{vulnId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "List Threat Intel",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/intelligence/threats?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "intelligence", "threats"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Threat Detail (+ IOCs)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/intelligence/threats/{{threatId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "intelligence", "threats", "{{threatId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Threat Actors (Intel)",
+      "description": "Threat actor profiling, MITRE ATT&CK mapping, and campaign tracking.",
+      "item": [
+        {
+          "name": "List Threat Actors",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/intelligence/threat-actors",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "intelligence", "threat-actors"]
+            }
+          }
+        },
+        {
+          "name": "Get Threat Actor Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/intelligence/threat-actors/{{threatActorId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "intelligence", "threat-actors", "{{threatActorId}}"]
+            }
+          }
+        },
+        {
+          "name": "Search by MITRE Technique",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/intelligence/threat-actors/mitre/T1566",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "intelligence", "threat-actors", "mitre", "T1566"]
+            }
+          }
+        },
+        {
+          "name": "Global IOC Search",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/search?q=CVE-2026&type=all",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "search"],
+              "query": [
+                { "key": "q", "value": "CVE-2026" },
+                { "key": "type", "value": "all" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "OSINT",
+      "description": "Dark Web Monitoring and Brand Protection. Detects data leaks on pastebin, dark web forums, typo-squatting domains, and social media impersonation.",
+      "item": [
+        {
+          "name": "Start OSINT Scan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 202) {",
+                  "  var json = pm.response.json();",
+                  "  if (json.jobId) {",
+                  "    pm.collectionVariables.set('osintJobId', json.jobId);",
+                  "    console.log('OSINT Job ID: ' + json.jobId);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"target\": \"example.com\",\n  \"scanType\": \"DOMAIN\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/osint/scan",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "osint", "scan"]
+            }
+          }
+        },
+        {
+          "name": "Get OSINT Scan Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/osint/scan/{{osintJobId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "osint", "scan", "{{osintJobId}}"]
+            }
+          }
+        },
+        {
+          "name": "List OSINT Scans",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/osint/scans?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "osint", "scans"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Dark Web Leaks",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/osint/leaks?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "osint", "leaks"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Critical Leaks",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/osint/leaks?severity=CRITICAL",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "osint", "leaks"],
+              "query": [
+                { "key": "severity", "value": "CRITICAL" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Leak Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/osint/leaks/{{leakId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "osint", "leaks", "{{leakId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Leak Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"VERIFIED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/osint/leaks/{{leakId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "osint", "leaks", "{{leakId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "List Brand Exposures",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/osint/exposures?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "osint", "exposures"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Exposure Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/osint/exposures/{{exposureId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "osint", "exposures", "{{exposureId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Exposure Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"INVESTIGATING\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/osint/exposures/{{exposureId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "osint", "exposures", "{{exposureId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "OSINT Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/osint/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "osint", "dashboard"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "description": "Real-time notification management. Notifications are delivered via Socket.io to the frontend and via email to admins.",
+      "item": [
+        {
+          "name": "Send Test Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Critical RCE Vulnerability Detected\",\n  \"message\": \"A critical remote code execution vulnerability (CVE-2026-10001) affecting Apache HTTP Server 2.4.x is being actively exploited in the wild.\",\n  \"severity\": \"CRITICAL\",\n  \"eventType\": \"VULNERABILITY_FOUND\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications/send-test",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications", "send-test"]
+            }
+          }
+        },
+        {
+          "name": "Send High Severity Alert",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Data Breach Detected\",\n  \"message\": \"A database dump containing 1,500 customer records from example.com was found on a dark web forum.\",\n  \"severity\": \"HIGH\",\n  \"eventType\": \"DATA_BREACH_DETECTED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications/send-test",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications", "send-test"]
+            }
+          }
+        },
+        {
+          "name": "Send Info Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Domain Scan Completed\",\n  \"message\": \"Attack surface scan for example.com completed. Found 12 subdomains and 8 open ports.\",\n  \"severity\": \"LOW\",\n  \"eventType\": \"SCAN_COMPLETED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications/send-test",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications", "send-test"]
+            }
+          }
+        },
+        {
+          "name": "List Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Critical Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications?severity=CRITICAL&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications"],
+              "query": [
+                { "key": "severity", "value": "CRITICAL" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Unread Count",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications/unread-count",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications", "unread-count"]
+            }
+          }
+        },
+        {
+          "name": "Mark Notification as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications/{{notificationId}}/read",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications", "{{notificationId}}", "read"]
+            }
+          }
+        },
+        {
+          "name": "Mark All as Read",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications/read-all",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications", "read-all"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Action & Mitigation",
+      "description": "Takedown requests, firewall blocking, incident tickets, webhooks, and workflow automation.",
+      "item": [
+        {
+          "name": "Submit Takedown Request",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var json = pm.response.json();",
+                  "  pm.collectionVariables.set('takedownId', json.id || json._id);",
+                  "  console.log('Takedown ID: ' + (json.id || json._id));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetUrl\": \"https://phishing-site.com/fake-login\",\n  \"domain\": \"victim-company.com\",\n  \"threatType\": \"PHISHING\",\n  \"evidence\": \"Phishing page mimicking victim-company.com login portal\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/action/takedown",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "action", "takedown"]
+            }
+          }
+        },
+        {
+          "name": "List Takedown Requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/action/takedown?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "action", "takedown"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Takedown Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/action/takedown/{{takedownId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "action", "takedown", "{{takedownId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Takedown Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ACTIONED\",\n  \"notes\": \"Provider confirmed takedown\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/action/takedown/{{takedownId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "action", "takedown", "{{takedownId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Generate Abuse Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetUrl\": \"https://phishing-site.com\",\n  \"domain\": \"victim.com\",\n  \"threatType\": \"PHISHING\",\n  \"description\": \"Phishing site targeting our client\",\n  \"emailType\": \"HOSTING\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/action/takedown/generate-email",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "action", "takedown", "generate-email"]
+            }
+          }
+        },
+        {
+          "name": "Manual Block IP/Domain",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 202) {",
+                  "  var json = pm.response.json();",
+                  "  pm.collectionVariables.set('mitigationId', json.id || json._id);",
+                  "  console.log('Block action queued');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetIp\": \"203.0.113.99\",\n  \"mitigationType\": \"BLOCK_IP\",\n  \"description\": \"Known malicious IP from OSINT scan\",\n  \"durationSeconds\": 86400\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/action/mitigation/block",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "action", "mitigation", "block"]
+            }
+          }
+        },
+        {
+          "name": "List Mitigation Actions",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/action/mitigation?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "action", "mitigation"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Mitigation Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/action/mitigation/{{mitigationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "action", "mitigation", "{{mitigationId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Mitigation Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"EXPIRED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/action/mitigation/{{mitigationId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "action", "mitigation", "{{mitigationId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Mitigation Stats Overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/action/mitigation/stats/overview",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "action", "mitigation", "stats", "overview"]
+            }
+          }
+        },
+        {
+          "name": "Create Incident Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Critical vulnerability detected on production server\",\n  \"description\": \"CVE-2026-12345 affecting Apache HTTP Server\",\n  \"severity\": \"CRITICAL\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/action/ticket",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "action", "ticket"]
+            }
+          }
+        },
+        {
+          "name": "List Incident Tickets",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/action/ticket?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "action", "ticket"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Ticket Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"IN_PROGRESS\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/action/ticket/{{ticketId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "action", "ticket", "{{ticketId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Send Webhook to SIEM/SOAR",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://hooks.siem.example.com/events\",\n  \"eventType\": \"THREAT_DETECTED\",\n  \"payload\": {\n    \"threatId\": \"THR-001\",\n    \"severity\": \"CRITICAL\",\n    \"description\": \"Critical vulnerability detected\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/action/webhook/send",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "action", "webhook", "send"]
+            }
+          }
+        },
+        {
+          "name": "Test Webhook Connectivity",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://hooks.example.com/test\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/action/webhook/test",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "action", "webhook", "test"]
+            }
+          }
+        },
+        {
+          "name": "Trigger Workflow",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"auto_block\",\n  \"target\": \"203.0.113.99\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/action/workflow",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "action", "workflow"]
+            }
+          }
+        },
+        {
+          "name": "List Workflow Rules",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/action/workflow",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "action", "workflow"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Service",
+      "description": "AI-powered threat analysis, summarization, early warning, rule generation, and semantic search.",
+      "item": [
+        {
+          "name": "Generate AI Insight",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"RCE Threat Analysis\",\n  \"insightType\": \"THREAT_SUMMARY\",\n  \"sourceService\": \"intelligence-service\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ai/generate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ai", "generate"]
+            }
+          }
+        },
+        {
+          "name": "Generate Attack Scenario",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Ransomware Attack Simulation\",\n  \"insightType\": \"ATTACK_SCENARIO\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ai/generate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ai", "generate"]
+            }
+          }
+        },
+        {
+          "name": "Generate Early Warning",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Emerging Threat Campaign\",\n  \"insightType\": \"EARLY_WARNING\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ai/generate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ai", "generate"]
+            }
+          }
+        },
+        {
+          "name": "Generate Detection Rule",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Sigma Rule for Log4Shell\",\n  \"insightType\": \"RULE_GENERATION\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ai/generate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ai", "generate"]
+            }
+          }
+        },
+        {
+          "name": "Summarize Text",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Suspicious network activity detected from IP 203.0.113.99 targeting multiple internal hosts on port 443. The activity pattern suggests a directory traversal attempt on several web servers. Source IP is associated with known malicious activity from threat intelligence feeds.\",\n  \"title\": \"Alert Summary\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ai/summarize",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ai", "summarize"]
+            }
+          }
+        },
+        {
+          "name": "Analyze Threat (Gemini AI)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceType\": \"VULNERABILITY\",\n  \"data\": {\n    \"cveId\": \"CVE-2026-12345\",\n    \"cvssScore\": 9.8,\n    \"description\": \"Remote code execution vulnerability in Apache HTTP Server\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ai/analyze-threat",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ai", "analyze-threat"]
+            }
+          }
+        },
+        {
+          "name": "List AI Insights",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ai/insights?page=1&limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ai", "insights"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "5" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get AI Insight Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ai/insights/{{insightId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ai", "insights", "{{insightId}}"]
+            }
+          }
+        },
+        {
+          "name": "Omnibar Semantic Search",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ai/omnibar?q=critical%20vulnerability",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ai", "omnibar"],
+              "query": [
+                { "key": "q", "value": "critical vulnerability" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tenantId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "scanJobId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "domainId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "shadowItId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "vulnId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "threatId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "threatActorId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "osintJobId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "leakId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "exposureId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "notificationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "takedownId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "mitigationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ticketId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "insightId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "organizationId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

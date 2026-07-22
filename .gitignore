@@ -1,0 +1,62 @@
+# ── Dependencies ──
+node_modules/
+.pnpm-store/
+.pnpm-debug.log*
+
+# ── Environment & Secrets ──
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.git-credentials
+
+# ── Backend Build Outputs ──
+dist/
+*.tsbuildinfo
+Backend/**/dist/
+
+# ── Frontend Build Outputs ──
+Frontend/.next/
+Frontend/out/
+
+# ── Capacitor Android (regenerate via npx cap sync) ──
+Frontend/android/
+
+# ── Logs ──
+logs/
+*.log
+npm-debug.log*
+
+# ── IDE ──
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Vercel ──
+.vercel
+
+# ── Testing ──
+coverage/
+*.lcov
+
+# ── Batch files ──
+*.bat
+
+# ── Markdown (kecuali README) ──
+*.md
+!README.md
+!**/README.md
+!Instruksi_*.md
+
+# ── Temporary ──
+*.bak
+tmp/
+temp/

@@ -1,0 +1,60 @@
+{
+  "name": "cyfirma-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CyberFrost Preemptive ETLM Cybersecurity Platform - Backend Monorepo",
+  "scripts": {
+    "dev": "pnpm --parallel -r run dev",
+    "build": "pnpm -r run build",
+    "start": "pnpm --parallel -r run start",
+    "start:all": "concurrently --names \"gateway,auth,discovery,intel,osint,notify,mitigation,ai,report\" --prefix-colors \"cyan,green,yellow,blue,magenta,red,white,cyan,green\" \"node --no-deprecation api-gateway/dist/server.js\" \"node services/auth-service/dist/index.js\" \"node services/discovery-service/dist/index.js\" \"node services/intelligence-service/dist/index.js\" \"node services/osint-service/dist/index.js\" \"node services/notification-service/dist/index.js\" \"node services/action-mitigation-service/dist/index.js\" \"node services/ai-service/dist/index.js\" \"node services/report-service/dist/index.js\"",
+    "lint": "pnpm -r run lint",
+    "format": "prettier --write \"**/*.{ts,js,json,md}\"",
+    "clean": "pnpm -r run clean",
+    "prepare": "husky || true",
+    "db:generate": "pnpm --filter @cyfirma/auth-service run db:generate",
+    "db:push": "pnpm --filter @cyfirma/auth-service run db:push",
+    "test": "jest --forceExit --detectOpenHandles",
+    "test:auth": "jest --forceExit -t 'Auth Service'",
+    "test:discovery": "jest --forceExit -t 'Discovery Service'",
+    "test:intel": "jest --forceExit -t 'Intelligence Service'",
+    "db:seed-mongo": "npx tsx scripts/seed-mongo.ts",
+    "test:osint": "jest --forceExit -t 'OSINT Service'",
+    "test:notify": "jest --forceExit -t 'Notification Service'",
+    "test:mitigation": "jest --forceExit -t 'Action & Mitigation'",
+    "test:ai": "jest --forceExit -t 'AI Service'"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@types/jest": "^30.0.0",
+    "@types/supertest": "^7.2.1",
+    "axios": "^1.18.1",
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0",
+    "husky": "^9.1.0",
+    "jest": "^30.4.2",
+    "lint-staged": "^15.3.0",
+    "prettier": "^3.4.0",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.11",
+    "tsx": "^4.23.1",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yaml}": [
+      "prettier --write"
+    ]
+  },
+  "dependencies": {
+    "concurrently": "^10.0.3"
+  }
+}

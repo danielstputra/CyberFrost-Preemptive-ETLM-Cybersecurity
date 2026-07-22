@@ -1,0 +1,150 @@
+{
+  "info": {
+    "name": "CYFIRMA Intelligence API",
+    "description": "Intelligence Service — CVE Vulnerabilities & Threat Intelligence",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Dashboard Stats",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+        "url": {
+          "raw": "http://localhost:4000/api/v1/intelligence/dashboard",
+          "host": ["http", "localhost"],
+          "port": "4000",
+          "path": ["api", "v1", "intelligence", "dashboard"]
+        }
+      }
+    },
+    {
+      "name": "List Vulnerabilities",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+        "url": {
+          "raw": "http://localhost:4000/api/v1/intelligence/vulnerabilities?page=1&limit=10",
+          "host": ["http", "localhost"],
+          "port": "4000",
+          "path": ["api", "v1", "intelligence", "vulnerabilities"],
+          "query": [
+            { "key": "page", "value": "1" },
+            { "key": "limit", "value": "10" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Filter Critical + Exploit Available",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+        "url": {
+          "raw": "http://localhost:4000/api/v1/intelligence/vulnerabilities?severity=CRITICAL&exploitAvailable=true",
+          "host": ["http", "localhost"],
+          "port": "4000",
+          "path": ["api", "v1", "intelligence", "vulnerabilities"],
+          "query": [
+            { "key": "severity", "value": "CRITICAL" },
+            { "key": "exploitAvailable", "value": "true" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Search Vulnerabilities",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+        "url": {
+          "raw": "http://localhost:4000/api/v1/intelligence/vulnerabilities?search=Apache",
+          "host": ["http", "localhost"],
+          "port": "4000",
+          "path": ["api", "v1", "intelligence", "vulnerabilities"],
+          "query": [{ "key": "search", "value": "Apache" }]
+        }
+      }
+    },
+    {
+      "name": "Get Vulnerability Detail",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+        "url": {
+          "raw": "http://localhost:4000/api/v1/intelligence/vulnerabilities/{{vulnId}}",
+          "host": ["http", "localhost"],
+          "port": "4000",
+          "path": ["api", "v1", "intelligence", "vulnerabilities", "{{vulnId}}"]
+        }
+      }
+    },
+    {
+      "name": "Update Vulnerability Status",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"REVIEWING\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:4000/api/v1/intelligence/vulnerabilities/{{vulnId}}/status",
+          "host": ["http", "localhost"],
+          "port": "4000",
+          "path": ["api", "v1", "intelligence", "vulnerabilities", "{{vulnId}}", "status"]
+        }
+      }
+    },
+    {
+      "name": "List Threat Intel",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+        "url": {
+          "raw": "http://localhost:4000/api/v1/intelligence/threats?page=1&limit=10",
+          "host": ["http", "localhost"],
+          "port": "4000",
+          "path": ["api", "v1", "intelligence", "threats"],
+          "query": [
+            { "key": "page", "value": "1" },
+            { "key": "limit", "value": "10" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Threat Detail",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+        "url": {
+          "raw": "http://localhost:4000/api/v1/intelligence/threats/{{threatId}}",
+          "host": ["http", "localhost"],
+          "port": "4000",
+          "path": ["api", "v1", "intelligence", "threats", "{{threatId}}"]
+        }
+      }
+    },
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:4000/api/v1/health",
+          "host": ["http", "localhost"],
+          "port": "4000",
+          "path": ["api", "v1", "health"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "accessToken", "value": "" },
+    { "key": "vulnId", "value": "" },
+    { "key": "threatId", "value": "" }
+  ]
+}
