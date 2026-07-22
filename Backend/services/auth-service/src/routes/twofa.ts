@@ -180,8 +180,6 @@ router.get('/status', authenticate, async (req: Request, res: Response) => {
  *       401:
  *         description: Invalid 2FA code / tenant inactive
  */
-router.post('/authenticate', async (req: Request, res: Response) => {
-
 const authSchema = z.object({
   userId: z.string().min(1),
   token: z.string().min(6).max(6),
