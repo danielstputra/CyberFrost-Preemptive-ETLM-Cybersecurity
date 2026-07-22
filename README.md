@@ -333,6 +333,8 @@ See `Instruksi_Claude_Full_System_Audit.md` for full audit report.
 
 ## License
 
-MIT — see [LICENSE](./LICENSE)**
+MIT — see [LICENSE](./LICENSE)
+
+---
 
 *Built with Claude Code • Preemptive ETLM Cybersecurity Platform*
