@@ -57,4 +57,4 @@ Full documentation: [docs/](../docs/README.md)
 
 ---
 
-**Developer:** Daniel S. Putra — danielstputra@gmail.com
+**Developer:** Daniels Trysyahputra — danielstputra@gmail.com

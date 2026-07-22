@@ -41,7 +41,7 @@
 
 | | |
 |---|---|
-| **Developer** | **Daniel S. Putra** |
+| **Developer** | **Daniels Trysyahputra** |
 | **Role** | Lead Software Engineer / Security Architect |
 | **GitHub** | [github.com/danielstputra](https://github.com/danielstputra) |
 | **Email** | danielstputra@gmail.com |
