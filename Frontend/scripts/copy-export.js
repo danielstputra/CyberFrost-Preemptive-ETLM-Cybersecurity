@@ -28,7 +28,11 @@ function copyFiles(src, dest) {
       if (!fs.existsSync(pageDir)) {
         fs.mkdirSync(pageDir, { recursive: true });
       }
-      fs.copyFileSync(srcPath, path.join(pageDir, 'index.html'));
+      // Read HTML and fix asset paths (/_next/... → ./_next/...)
+      let html = fs.readFileSync(srcPath, 'utf8');
+      html = html.replace(/="\/_next\//g, '"./_next/');
+      html = html.replace(/='\/_next\//g, "'./_next/");
+      fs.writeFileSync(path.join(pageDir, 'index.html'), html);
       console.log(`  ✓ ${entry.name}`);
     }
   }
@@ -58,4 +62,23 @@ function copyRecursive(src, dest) {
 
 console.log('Copying static export to out/...');
 copyFiles(srcDir, outDir);
+
+// Copy root index.html to out/index.html (Capacitor entry point)
+const rootHtmlSrc = path.join(srcDir, 'index.html');
+const rootHtmlDest = path.join(outDir, 'index.html');
+if (fs.existsSync(rootHtmlSrc)) {
+  let html = fs.readFileSync(rootHtmlSrc, 'utf8');
+  html = html.replace(/="\/_next\//g, '"./_next/');
+  html = html.replace(/='\/_next\//g, "'./_next/");
+  fs.writeFileSync(rootHtmlDest, html);
+  console.log('  ✓ root index.html');
+} else {
+  // Fallback: copy from /index/index.html
+  const indexPath = path.join(outDir, 'index', 'index.html');
+  if (fs.existsSync(indexPath)) {
+    fs.copyFileSync(indexPath, rootHtmlDest);
+    console.log('  ✓ root index.html (from /index/)');
+  }
+}
+
 console.log('Done! Files in:', outDir);
