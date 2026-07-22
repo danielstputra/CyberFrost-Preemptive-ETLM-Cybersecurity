@@ -2,13 +2,26 @@
   "appId": "com.cyberfrost.app",
   "appName": "CyberFrost",
   "webDir": "out",
+  "bundledWebRuntime": false,
   "android": {
-    "allowMixedContent": false
+    "allowMixedContent": true,
+    "webContentsDebuggingEnabled": true
+  },
+  "ios": {
+    "contentInset": "always",
+    "allowsLinkPreview": false
+  },
+  "server": {
+    "androidScheme": "https",
+    "iosScheme": "capacitor",
+    "allowNavigation": ["*.railway.app"]
   },
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 2000,
-      "backgroundColor": "#0B0F14"
+      "launchAutoHide": false,
+      "backgroundColor": "#0B0F14",
+      "androidSplashResourceName": "splash"
     }
   }
 }
