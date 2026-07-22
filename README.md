@@ -321,10 +321,18 @@ See `Instruksi_Claude_Full_System_Audit.md` for full audit report.
 
 ---
 
+## 👨‍💻 Developer & Contact
+
+| | |
+|---|---|
+| **Developer** | **Daniels Trysyahputra** |
+| **Role** | Lead Software Engineer / Security Architect |
+| **GitHub** | [github.com/danielstputra](https://github.com/danielstputra) |
+| **Email** | danielstputra@gmail.com |
+| **Platform** | [CyberFrost App](https://frontend-d076et461-danielstputradev-6548s-projects.vercel.app) |
+
 ## License
 
-MIT — see [LICENSE](./LICENSE)
-
----
+MIT — see [LICENSE](./LICENSE)**
 
 *Built with Claude Code • Preemptive ETLM Cybersecurity Platform*
