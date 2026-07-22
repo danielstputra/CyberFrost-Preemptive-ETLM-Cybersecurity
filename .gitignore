@@ -20,8 +20,11 @@ Backend/**/dist/
 Frontend/.next/
 Frontend/out/
 
-# ── Capacitor Android (regenerate via npx cap sync) ──
-Frontend/android/
+# ── Capacitor build outputs ──
+Frontend/android/.gradle/
+Frontend/android/app/build/
+Frontend/android/captures/
+Frontend/android/.externalNativeBuild/
 
 # ── Logs ──
 logs/
@@ -60,3 +63,8 @@ coverage/
 *.bak
 tmp/
 temp/
+
+# Environment files (secrets)
+Backend/.env.railway
+Backend/.env.railway-raw
+.env.*
