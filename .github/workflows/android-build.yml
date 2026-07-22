@@ -71,25 +71,26 @@ jobs:
           fi
           echo "out/index.html OK"
 
-      - name: Sync Capacitor + Add Android
+      - name: Add Android platform + Sync
         run: |
-          # Pastikan out/index.html ada
-          if [ ! -f out/index.html ]; then
-            echo "ERROR: out/index.html not found!"
-            exit 1
-          fi
-          # Add Android platform (buat baru kalo belum ada)
-          npx cap add android --force 2>&1 || true
+          echo "=== Current dir ==="
+          pwd
+          ls -la out/index.html 2>/dev/null && echo "out/index.html OK" || echo "out/index.html MISSING"
+          echo ""
+          echo "=== Add Android ==="
+          npx cap add android 2>&1
+          echo ""
+          echo "=== Sync ==="
           npx cap sync android 2>&1
-          echo "Android platform ready"
-          ls -la android/gradlew 2>/dev/null && echo "gradlew found" || echo "WARNING: gradlew missing"
+          echo ""
+          echo "=== Verify ==="
+          ls -la android/gradlew 2>/dev/null && echo "gradlew OK" || echo "gradlew MISSING"
 
       - name: Build APK
         run: |
-          ls -la android/gradlew 2>/dev/null || echo "gradlew not found in android/"
           cd android
-          chmod +x gradlew 2>/dev/null || true
-          ./gradlew assembleDebug --no-daemon
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
