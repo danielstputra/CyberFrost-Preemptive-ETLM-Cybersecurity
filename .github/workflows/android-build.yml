@@ -82,30 +82,27 @@ jobs:
           npx cap sync android 2>&1
           ls -la android/gradlew 2>/dev/null && echo "gradlew OK" || exit 1
 
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > $HOME/cyberfrost.keystore
+          chmod 600 $HOME/cyberfrost.keystore
+          echo "Keystore decoded to $HOME/cyberfrost.keystore"
+
       - name: Set version + signing in build.gradle
         run: |
           cd android/app
           # Set version
           sed -i "s/versionCode [0-9]*/versionCode ${{ steps.version.outputs.versionCode }}/" build.gradle
           sed -i "s/versionName \"[^\"]*\"/versionName \"${{ steps.version.outputs.versionName }}\"/" build.gradle
-          # Add signing config before buildTypes
-          sed -i '/buildTypes {/i\
-          signingConfigs {\
-              release {\
-                  storeFile file("'"${{ runner.temp }}"'"\/cyberfrost.keystore")\
-                  storePassword "'"${{ secrets.KEYSTORE_PASSWORD }}"'"\
-                  keyAlias "'"${{ secrets.KEY_ALIAS }}"'"\
-                  keyPassword "'"${{ secrets.KEY_PASSWORD }}"'"\
-              }\
-          }' build.gradle
-          # Apply signing to release build
+          # Inject signing config using simple echo (no complex sed escaping)
+          echo "" >> build.gradle
+          echo "android.signingConfigs.release.storeFile = file(System.getProperty('user.home') + '/cyberfrost.keystore')" >> build.gradle
+          echo "android.signingConfigs.release.storePassword = '${{ secrets.KEYSTORE_PASSWORD }}'" >> build.gradle
+          echo "android.signingConfigs.release.keyAlias = '${{ secrets.KEY_ALIAS }}'" >> build.gradle
+          echo "android.signingConfigs.release.keyPassword = '${{ secrets.KEY_PASSWORD }}'" >> build.gradle
+          # Enable signing for release build (replace existing release block)
           sed -i 's/release {/release {\n            signingConfig signingConfigs.release/' build.gradle
           echo "Version + signing configured"
-
-      - name: Decode keystore
-        run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > "${{ runner.temp }}/cyberfrost.keystore"
-          echo "Keystore decoded"
 
       - name: Build Debug APK
         run: |
