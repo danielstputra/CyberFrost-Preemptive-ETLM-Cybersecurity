@@ -53,11 +53,10 @@ coverage/
 # ── Batch files ──
 *.bat
 
-# ── Markdown (kecuali README) ──
+# ── Markdown (hanya README yang diizinkan) ──
 *.md
 !README.md
 !**/README.md
-!Instruksi_*.md
 
 # ── Temporary ──
 *.bak
