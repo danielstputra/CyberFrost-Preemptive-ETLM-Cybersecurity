@@ -57,7 +57,19 @@ jobs:
           mv src/proxy.ts.bak src/proxy.ts || true
 
       - name: Copy export to out/
-        run: node scripts/copy-export.js
+        run: |
+          node scripts/copy-export.js
+          # Pastikan out/index.html ada
+          if [ ! -f out/index.html ] && [ -f out/index/index.html ]; then
+            cp out/index/index.html out/index.html
+            echo "Created out/index.html from out/index/"
+          fi
+          if [ ! -f out/index.html ]; then
+            echo "ERROR: out/index.html not found!"
+            ls -la out/ 2>/dev/null || echo "out/ empty or missing"
+            exit 1
+          fi
+          echo "out/index.html OK"
 
       - name: Add Android platform (if missing)
         run: |
