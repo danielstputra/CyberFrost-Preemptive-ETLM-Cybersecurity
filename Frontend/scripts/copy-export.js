@@ -32,6 +32,9 @@ function copyFiles(src, dest) {
     const srcPath = path.join(src, entry.name);
     const destPath = path.join(dest, entry.name);
 
+    // Skip Turbopack segment artifacts
+    if (entry.name.endsWith('.segments') || entry.name.endsWith('.segment')) continue;
+
     if (entry.isDirectory()) {
       copyFiles(srcPath, destPath);
     } else if (entry.name.endsWith('.html')) {
@@ -76,6 +79,31 @@ if (fs.existsSync(rootSrc)) {
 } else {
   const fallback = path.join(outDir, 'index', 'index.html');
   if (fs.existsSync(fallback)) fs.copyFileSync(fallback, rootDst);
+}
+
+// Cleanup: hapus artifacts Turbopack + redundant folders
+function cleanup(dir) {
+  if (!fs.existsSync(dir)) return;
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, e.name);
+    if (e.isDirectory()) {
+      if (e.name.endsWith('.segments') || e.name === '.segment') {
+        fs.rmSync(full, { recursive: true, force: true });
+        console.log(`  ✗ removed ${e.name}`);
+      } else {
+        cleanup(full);
+      }
+    }
+  }
+}
+cleanup(outDir);
+
+// Hapus index/index.html duplicate jika root index.html sudah ada
+const rootIdx = path.join(outDir, 'index.html');
+const dupIdx = path.join(outDir, 'index', 'index.html');
+if (fs.existsSync(rootIdx) && fs.existsSync(dupIdx)) {
+  fs.rmSync(path.join(outDir, 'index'), { recursive: true, force: true });
+  console.log('  ✗ removed duplicate /index/');
 }
 
 console.log('Done! Files in:', outDir);
