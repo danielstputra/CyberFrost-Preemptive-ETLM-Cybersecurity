@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Orbitron, Rajdhani, Share_Tech_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TranslationProvider } from "@/providers/translation-provider";
+import { BootSplashWrapper } from "@/components/splash/boot-splash-wrapper";
 import "./globals.css";
 
 const orbitron = Orbitron({
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="id" className={`${orbitron.variable} ${rajdhani.variable} ${shareTechMono.variable}`} suppressHydrationWarning>
       <body>
+        <BootSplashWrapper />
         <TooltipProvider>
           <TranslationProvider>{children}</TranslationProvider>
         </TooltipProvider>
