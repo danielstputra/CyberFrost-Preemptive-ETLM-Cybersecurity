@@ -23,6 +23,13 @@ export const ENDPOINTS = {
   INTEL_VULNERABILITIES: `${API_PREFIX}/intelligence/vulnerabilities`,
   INTEL_THREATS: `${API_PREFIX}/intelligence/threats`,
   INTEL_DASHBOARD: `${API_PREFIX}/intelligence/dashboard`,
+  THREAT_SCORES: `${API_PREFIX}/intelligence/threat-scores`,
+  THREAT_SCORE_CALC: `${API_PREFIX}/intelligence/threat-scores/calculate`,
+  THREAT_SCORE_STATS: `${API_PREFIX}/intelligence/threat-scores/stats`,
+  IOC_LIST: `${API_PREFIX}/intelligence/iocs`,
+  IOC_LOOKUP: `${API_PREFIX}/intelligence/iocs/lookup`,
+  IOC_STATS: `${API_PREFIX}/intelligence/iocs/stats`,
+  IOC_EXPORT: `${API_PREFIX}/intelligence/iocs/export/stix`,
 
   // OSINT
   OSINT_SCAN: `${API_PREFIX}/osint/scan`,

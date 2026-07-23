@@ -7,8 +7,12 @@
 
 import app from './app';
 import { config } from './config';
+import { createLogger } from '@cyfirma/shared';
 import { connectDatabase, disconnectDatabase } from './config/database';
 import { startThreatFetcher, stopThreatFetcher } from './jobs/threat-fetcher';
+import { startIocFetcher, runIocFetch } from './jobs/ioc-fetcher';
+
+const log = createLogger({ serviceName: 'intelligence-service' });
 
 async function main() {
   // ── Connect to MongoDB ──
@@ -16,17 +20,16 @@ async function main() {
 
   // ── Start Express server ──
   app.listen(config.port, '0.0.0.0', () => {
-    console.log(`[Intelligence Service] Running on http://0.0.0.0:${config.port}`);
+    log.info({ port: config.port }, 'Intelligence Service running');
   });
 
-  // ── Start Cron Job ──
-  // Runs on configurable interval (default every 30 min).
-  // Simulates pulling CVE + threat intel from external sources.
+  // ── Start Cron Jobs ──
   startThreatFetcher();
+  startIocFetcher();
 
   // ── Graceful Shutdown ──
   const shutdown = async (signal: string) => {
-    console.log(`\n[Intel] ${signal}. Shutting down...`);
+    log.info({ signal }, 'Shutting down...');
     stopThreatFetcher();
     await disconnectDatabase();
     process.exit(0);
@@ -37,6 +40,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error('[Intel] Fatal:', err);
+  log.error({ err }, 'Fatal startup error');
   process.exit(1);
 });

@@ -1,3 +1,25 @@
+// =============================================================================
+// CyberFrost - Preemptive ETLM Cybersecurity Platform
+// =============================================================================
+// Project      : CyberFrost-Preemptive-ETLM-Cybersecurity
+// Developer    : Daniels Trysyahputra (danielstputra@gmail.com)
+// Website      : https://cyberfrost.vercel.app
+// License      : CyberFrost Security
+// File         : C:\Users\it.prog.3\Pictures\Project_AI\Cyfirma-App\Website\vercel.json
+// Description  : Source file
+// Last Updated : 23 Juli 2026
+//
+// IMPORTANT NOTE:
+// Modification of this code is permitted for development purposes only.
+// REMOVING OR MODIFYING THE DEVELOPER NAME IS STRICTLY PROHIBITED.
+//
+// LEGAL WARNING:
+// Unauthorized distribution or modification of authorship information
+// is subject to legal action under Indonesian Law:
+// - UU No. 28 Tahun 2014 tentang Hak Cipta.
+// - UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik (UU ITE).
+// =============================================================================
+
 {
   "framework": "nextjs",
   "buildCommand": "test -d Frontend && cd Frontend || true; pnpm build",

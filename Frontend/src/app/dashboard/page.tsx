@@ -11,11 +11,12 @@ import { TerminalPanel } from '@/components/cyber/TerminalPanel';
 import { HUDButton } from '@/components/cyber/HUDButton';
 import { useSortableTable } from '@/hooks/use-sortable-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Bug, AlertTriangle, Search, Shield, Activity, Terminal, ChevronLeft, ChevronRight, TrendingUp, FileText } from 'lucide-react';
+import { Bug, AlertTriangle, Search, Shield, Activity, Terminal, ChevronLeft, ChevronRight, TrendingUp, FileText, Globe } from 'lucide-react';
 import { SeverityBarChart, TrendLineChart } from '@/components/dashboard/risk-charts';
 import { useTranslation } from '@/providers/translation-provider';
 import { RoleGuard } from '@/components/auth/RoleGuard';
 import { useAuthStore } from '@/store/auth-store';
+import { ThreatScore, ThreatScoreBadge } from '@/components/cyber/ThreatScore';
 import type { IntelDashboard, PaginatedResponse, Vulnerability } from '@/types';
 
 const sevColors: Record<string, string> = {
@@ -43,6 +44,25 @@ export default function ExecutiveViewPage() {
       const res = await apiClient.get<PaginatedResponse<Vulnerability>>(`${ENDPOINTS.INTEL_VULNERABILITIES}?page=1&limit=20&sortBy=publishedAt&sortOrder=desc`);
       return res.data;
     },
+  });
+
+  // IOC & Threat Score data
+  const { data: iocStats } = useQuery({
+    queryKey: ['ioc-stats'],
+    queryFn: async () => {
+      const res = await apiClient.get(`${ENDPOINTS.IOC_STATS}`);
+      return res.data;
+    },
+    enabled: !!ENDPOINTS.IOC_STATS,
+  });
+
+  const { data: topThreatScores } = useQuery({
+    queryKey: ['threat-scores-top'],
+    queryFn: async () => {
+      const res = await apiClient.get(`${ENDPOINTS.THREAT_SCORES || '/api/v1/intelligence/threat-scores'}?sortBy=score&sortOrder=desc&limit=5`);
+      return res.data?.data || [];
+    },
+    enabled: true,
   });
 
   const { sorted, total, toggleSort, page: curPage, totalPages, setPage, sortIcon, search, setSearch } = useSortableTable(vulnData?.data, { key: 'publishedAt', dir: 'desc' });
@@ -126,7 +146,57 @@ export default function ExecutiveViewPage() {
         ))}
       </motion.div>
 
-      {/* Two-column */}
+      {/* Threat Score + IOC Row */}
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+        {/* Top Threat Scores */}
+        <motion.div variants={itemAnim}>
+          <HUDCard title="Top Threat Scores" accent="red" icon={<AlertTriangle className="h-3.5 w-3.5" />}>
+            {topThreatScores?.length ? topThreatScores.slice(0, 3).map((ts: any, i: number) => (
+              <div key={ts._id || i} className="mb-3 last:mb-0">
+                <ThreatScore
+                  score={ts.score}
+                  level={ts.level}
+                  action={ts.recommendedAction}
+                  breakdown={ts.breakdown}
+                  size="sm"
+                />
+              </div>
+            )) : (
+              <p className="py-6 text-center text-[10px] font-mono text-[#6F7C89]">No scored threats yet. Run a calculation first.</p>
+            )}
+          </HUDCard>
+        </motion.div>
+
+        {/* Recent IOCs */}
+        <motion.div variants={itemAnim}>
+          <HUDCard title="Recent Indicators" accent="cyan" icon={<Globe className="h-3.5 w-3.5" />}>
+            {iocStats?.byType?.length ? (
+              <div className="space-y-3">
+                <div className="grid grid-cols-4 gap-2">
+                  {iocStats.byType.slice(0, 4).map((t: any) => (
+                    <div key={t._id} className="text-center p-2 rounded border border-white/5 bg-[rgba(5,5,5,0.3)]">
+                      <p className="text-[20px] font-bold font-mono text-white">{t.count}</p>
+                      <p className="text-[8px] font-mono text-[#6F7C89] uppercase tracking-wider">{t._id}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[10px] font-mono text-[#6F7C89] text-center">
+                  Total: <span className="text-white font-bold">{iocStats.total}</span> indicators tracked
+                </p>
+              </div>
+            ) : (
+              <p className="py-6 text-center text-[10px] font-mono text-[#6F7C89]">No IOCs imported yet. IOCs are fetched automatically every 15 min.</p>
+            )}
+            <div className="mt-3 pt-3 border-t border-white/5">
+              <a href="/dashboard/ioc-explorer" className="block text-center text-[9px] font-mono text-[#00F6FF] hover:underline tracking-wider">
+                → Open IOC Explorer
+              </a>
+            </div>
+          </HUDCard>
+        </motion.div>
+      </div>
+
+      {/* Two-column: Severity + Threats */}
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         {/* Severity */}
         <motion.div variants={itemAnim} className="min-w-0">
