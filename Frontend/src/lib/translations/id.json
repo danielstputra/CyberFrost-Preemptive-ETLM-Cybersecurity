@@ -364,6 +364,7 @@
   "ports": "Port",
   "severity": "Severity",
   "sidebar.aiInsights": "Wawasan AI",
+  "sidebar.iocExplorer": "Eksplorasi IOC",
   "status": "Status",
   "submittedAt": "Tanggal",
   "targetIp": "IP Target",

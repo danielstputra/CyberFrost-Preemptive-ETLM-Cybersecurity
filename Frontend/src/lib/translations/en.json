@@ -364,6 +364,7 @@
   "ports": "Ports",
   "severity": "Severity",
   "sidebar.aiInsights": "AI Insights",
+  "sidebar.iocExplorer": "IOC Explorer",
   "status": "Status",
   "submittedAt": "Date",
   "targetIp": "Target IP",
