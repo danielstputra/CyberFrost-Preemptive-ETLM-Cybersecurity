@@ -14,7 +14,7 @@ const router: Router = Router();
 const createSchema = z.object({
   targetUrl: z.string().url('Valid URL is required'),
   domain: z.string().min(1),
-  threatType: z.enum(['PHISHING', 'MALWARE', 'TRADEMARK', 'COPYRIGHT']).default('PHISHING'),
+  threatType: z.enum(['PHISHING', 'MALWARE', 'TRADEMARK', 'COPYRIGHT', 'JUDI_ONLINE', 'PHISHING_BANK_LOKAL', 'PENIPUAN_TRANSAKSI', 'FRAUD', 'IMPERSONATION']).default('PHISHING'),
   platform: z.enum(['GOOGLE_SAFE_BROWSING', 'PHISHTANK', 'ABUSE_EMAIL', 'MANUAL']).default('MANUAL'),
   evidence: z.string().default(''),
   notes: z.string().default(''),
