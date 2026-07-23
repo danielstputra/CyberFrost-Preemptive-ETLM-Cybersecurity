@@ -368,6 +368,7 @@
   "sidebar.socOperations": "SOC Operations",
   "sidebar.threatHunting": "Threat Hunting",
   "sidebar.compliance": "Compliance",
+  "sidebar.automation": "Automation",
   "status": "Status",
   "submittedAt": "Date",
   "targetIp": "Target IP",

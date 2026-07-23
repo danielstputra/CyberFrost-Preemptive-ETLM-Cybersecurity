@@ -10,6 +10,7 @@ import workflowRouter from './routes/workflow';
 import integrationRouter from './routes/integration';
 import socRouter from './routes/soc';
 import complianceRouter from './routes/compliance';
+import automationRouter from './routes/automation';
 import healthRouter from './routes/health';
 
 const app: express.Express = express();
@@ -32,6 +33,7 @@ app.use('/api/v1/action/workflow', authMw, workflowRouter);
 app.use('/api/v1/action/integration', authMw, integrationRouter);
 app.use('/api/v1/action/soc', authMw, socRouter);
 app.use('/api/v1/action/compliance', authMw, complianceRouter);
+app.use('/api/v1/action/automation', authMw, automationRouter);
 app.use('/api/v1/health', healthRouter);
 
 app.use((_req, res) => { res.status(404).json({ error: 'NOT_FOUND' }); });
