@@ -40,7 +40,11 @@ echo.
 
 set COUNT=0
 
-for /r %%F in (*.ts *.tsx *.js *.jsx *.css *.html *.py *.yml *.yaml *.java *.kt *.sql *.sh *.xml *.json *.gradle *.prisma *.go *.php *.rb *.rs *.swift) do (
+:: Skip binary dan sistem file
+set SKIP_EXT=.ico .png .jpg .jpeg .gif .bmp .webp .svg .woff .woff2 .ttf .eot .otf .pdf .zip .tar .gz .7z .rar .exe .dll .so .dylib .o .a .pyc .class .dex .apk .aab .keystore .jks .p12
+set TEXT_EXT=.ts .tsx .js .jsx .mjs .cjs .mts .cts .css .scss .sass .less .html .htm .xml .vue .svelte .py .yml .yaml .java .kt .sql .sh .bash .zsh .json .gradle .prisma .go .php .rb .rs .swift .pl .lua .bat .cmd .ps1 .env .gitignore .dockerignore .npmrc .yarnrc .prettierrc .editorconfig .vercelignore .railway .example .local .production .txt .md .graphql .gql .proto .tf .hcl .makefile .cfg .ini .conf .toml .lock .yaml .yml
+
+for /r %%F in (%TEXT_EXT%) do (
     setlocal enabledelayedexpansion
     set FILE=%%F
     set REL=%%F
@@ -84,16 +88,43 @@ for /r %%F in (*.ts *.tsx *.js *.jsx *.css *.html *.py *.yml *.yaml *.java *.kt 
     set EXT=%%~xF
     set COMMENT_STYLE=BLOCK_SINGLE     :: /* */ untuk .ts .js .tsx .jsx .css .java .kt .swift .go .php .rs
     if /I "!EXT!"==".html" set COMMENT_STYLE=HTML
+    if /I "!EXT!"==".htm" set COMMENT_STYLE=HTML
+    if /I "!EXT!"==".xml" set COMMENT_STYLE=HTML
+    if /I "!EXT!"==".vue" set COMMENT_STYLE=HTML
+    if /I "!EXT!"==".svelte" set COMMENT_STYLE=HTML
+    if /I "!EXT!"==".md" set COMMENT_STYLE=HTML
     if /I "!EXT!"==".py" set COMMENT_STYLE=PYTHON
     if /I "!EXT!"==".yml" set COMMENT_STYLE=HASH
     if /I "!EXT!"==".yaml" set COMMENT_STYLE=HASH
     if /I "!EXT!"==".sh" set COMMENT_STYLE=HASH
+    if /I "!EXT!"==".bash" set COMMENT_STYLE=HASH
+    if /I "!EXT!"==".zsh" set COMMENT_STYLE=HASH
+    if /I "!EXT!"==".ps1" set COMMENT_STYLE=HASH
     if /I "!EXT!"==".sql" set COMMENT_STYLE=SQL
     if /I "!EXT!"==".prisma" set COMMENT_STYLE=HASH
     if /I "!EXT!"==".rb" set COMMENT_STYLE=HASH
+    if /I "!EXT!"==".pl" set COMMENT_STYLE=HASH
+    if /I "!EXT!"==".lua" set COMMENT_STYLE=SQL
     if /I "!EXT!"==".gradle" set COMMENT_STYLE=JAVA
-    if /I "!EXT!"==".xml" set COMMENT_STYLE=HTML
     if /I "!EXT!"==".json" set COMMENT_STYLE=JSON
+    if /I "!EXT!"==".prettierrc" set COMMENT_STYLE=JSON
+    if /I "!EXT!"==".bat" set COMMENT_STYLE=BAT
+    if /I "!EXT!"==".cmd" set COMMENT_STYLE=BAT
+    if /I "!EXT!"==".env" set COMMENT_STYLE=HASH
+    if /I "!EXT!"==".gitignore" set COMMENT_STYLE=HASH
+    if /I "!EXT!"==".dockerignore" set COMMENT_STYLE=HASH
+    if /I "!EXT!"==".npmrc" set COMMENT_STYLE=HASH
+    if /I "!EXT!"==".yarnrc" set COMMENT_STYLE=HASH
+    if /I "!EXT!"==".vercelignore" set COMMENT_STYLE=HASH
+    if /I "!EXT!"==".graphql" set COMMENT_STYLE=HASH
+    if /I "!EXT!"==".gql" set COMMENT_STYLE=HASH
+    if /I "!EXT!"==".tf" set COMMENT_STYLE=HASH
+    if /I "!EXT!"==".hcl" set COMMENT_STYLE=HASH
+    if /I "!EXT!"==".makefile" set COMMENT_STYLE=HASH
+    if /I "!EXT!"==".cfg" set COMMENT_STYLE=HASH
+    if /I "!EXT!"==".ini" set COMMENT_STYLE=HASH
+    if /I "!EXT!"==".conf" set COMMENT_STYLE=HASH
+    if /I "!EXT!"==".proto" set COMMENT_STYLE=JAVA
 
     :: Buat watermark + konten asli
     (
@@ -185,6 +216,28 @@ for /r %%F in (*.ts *.tsx *.js *.jsx *.css *.html *.py *.yml *.yaml *.java *.kt 
             echo // - UU No. 28 Tahun 2014 tentang Hak Cipta.
             echo // - UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik ^(UU ITE^).
             echo // =============================================================================
+        ) else if "!COMMENT_STYLE!"=="BAT" (
+            echo REM =============================================================================
+            echo REM %APP_NAME% - %APP_DESC%
+            echo REM =============================================================================
+            echo REM Project      : %PROJECT%
+            echo REM Developer    : %DEV_NAME% ^(%DEV_EMAIL%^)
+            echo REM Website      : %URL%
+            echo REM License      : %ORG%
+            echo REM File         : %%F
+            echo REM Description  : !DESC!
+            echo REM Last Updated : %DATE_ID%
+            echo REM
+            echo REM IMPORTANT NOTE:
+            echo REM Modification of this code is permitted for development purposes only.
+            echo REM REMOVING OR MODIFYING THE DEVELOPER NAME IS STRICTLY PROHIBITED.
+            echo REM
+            echo REM LEGAL WARNING:
+            echo REM Unauthorized distribution or modification of authorship information
+            echo REM is subject to legal action under Indonesian Law:
+            echo REM - UU No. 28 Tahun 2014 tentang Hak Cipta.
+            echo REM - UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik ^(UU ITE^).
+            echo REM =============================================================================
         ) else (
             echo /*=============================================================================
             echo  * %APP_NAME% - %APP_DESC%
