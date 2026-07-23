@@ -6,16 +6,5 @@
   "android": {
     "allowMixedContent": true,
     "webContentsDebuggingEnabled": true
-  },
-  "server": {
-    "androidScheme": "http",
-    "allowNavigation": ["*.railway.app"]
-  },
-  "plugins": {
-    "SplashScreen": {
-      "launchShowDuration": 0,
-      "launchAutoHide": true,
-      "backgroundColor": "#0B0F14"
-    }
   }
 }
