@@ -462,8 +462,27 @@ export default function ActionMitigationPage() {
           <CyberSelect options={[{value:'PHISHING',label:'Phishing'},{value:'MALWARE',label:'Malware'},{value:'TRADEMARK',label:'Trademark'},{value:'JUDI_ONLINE',label:'Judi Online'},{value:'PHISHING_BANK_LOKAL',label:'Phishing Bank Lokal'},{value:'PENIPUAN_TRANSAKSI',label:'Penipuan Transaksi'}]}
             value={tdForm.threatType} onChange={v=>setTdForm({...tdForm,threatType:v})} placeholder={t('mitigation.threatTypePlaceholder')} />
           <div>
-            <label className="text-[8px] font-mono text-[#6F7C89] uppercase tracking-wider mb-1 block">Evidence (URLs or description)</label>
-            <Input className="cyber-input" placeholder="https://... or text description" value={tdForm.evidence} onChange={e=>setTdForm({...tdForm,evidence:e.target.value})} />
+            <label className="text-[8px] font-mono text-[#6F7C89] uppercase tracking-wider mb-1 block">Evidence / Attachment</label>
+            <Input className="cyber-input" placeholder="https://... or description (optional)" value={tdForm.evidence} onChange={e=>setTdForm({...tdForm,evidence:e.target.value})} />
+            <div className="mt-2">
+              <label className="flex items-center gap-2 px-3 py-2 text-[9px] font-mono cursor-pointer border border-dashed border-white/10 hover:border-[#00F6FF]/30 transition-colors"
+                style={{ background: 'rgba(255,255,255,0.02)' }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#6F7C89]"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Upload evidence file (optional)
+                <input type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.txt" className="hidden" onChange={async e => {
+                  const files = Array.from(e.target.files || []);
+                  if (!files.length) return;
+                  const names = files.map(f => f.name).join(', ');
+                  const urls = await Promise.all(files.map(f => new Promise<string>(resolve => {
+                    const r = new FileReader();
+                    r.onload = () => resolve(r.result as string);
+                    r.readAsDataURL(f);
+                  })));
+                  setTdForm(prev => ({ ...prev, evidence: prev.evidence ? prev.evidence + '\n' + urls.join('\n') : urls.join('\n') }));
+                  e.target.value = '';
+                }} />
+              </label>
+            </div>
           </div>
           {tdError && (
             <div className="border border-[#FF003C] p-2 bg-[rgba(255,0,60,0.05)]">
