@@ -101,24 +101,10 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
-      - name: Upload Debug APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cyberfrost-apk-debug-v${{ steps.version.outputs.versionName }}
+          name: cyberfrost-apk-v${{ steps.version.outputs.versionName }}
           path: Frontend/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: warn
           retention-days: 30
-
-      - name: Upload APK to Release
-        if: github.ref == 'refs/heads/main'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          TAG="v${{ steps.version.outputs.versionName }}"
-          # Hapus release lama jika sudah ada (biar update)
-          gh release delete "$TAG" --yes 2>/dev/null || true
-          gh release create "$TAG" \
-            --title "CyberFrost $TAG" \
-            --notes "Automated build from commit ${{ github.sha }}" \
-            Frontend/android/app/build/outputs/apk/debug/app-debug.apk \
-            --target ${{ github.sha }} --latest
