@@ -5,7 +5,7 @@ import swaggerUi from 'swagger-ui-express';
 import { config } from './config';
 import { globalRateLimiter } from './middleware/rateLimit';
 import apiRouter from './routes';
-import { swaggerSpec, swaggerUiOptions } from './config/swagger';
+import { getSwaggerSpec, swaggerUiOptions } from './config/swagger';
 
 // ──────────────────────────────────────
 // Express Application
@@ -34,8 +34,9 @@ app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-// ── Swagger UI (before rate limiter — dokumentasi harus bisa diakses) ──
-app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
+// ── Swagger UI (lazy init — spec di-build saat pertama kali diakses) ──
+app.use('/api/v1/docs', swaggerUi.serve, (_req: any, _res: any, next: any) => next(),
+  swaggerUi.setup(getSwaggerSpec(), swaggerUiOptions));
 
 // ── Global rate limiter ──
 app.use(globalRateLimiter);
@@ -54,7 +55,7 @@ app.use('/api/v1', apiRouter);
 // ── JSON spec endpoint ──
 app.get('/api/v1/docs.json', (_req, res) => {
   res.setHeader('Content-Type', 'application/json');
-  res.json(swaggerSpec);
+  res.json(getSwaggerSpec());
 });
 
 // ── 404 handler ──
