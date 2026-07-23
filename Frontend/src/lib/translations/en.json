@@ -365,6 +365,7 @@
   "severity": "Severity",
   "sidebar.aiInsights": "AI Insights",
   "sidebar.iocExplorer": "IOC Explorer",
+  "sidebar.socOperations": "SOC Operations",
   "status": "Status",
   "submittedAt": "Date",
   "targetIp": "Target IP",

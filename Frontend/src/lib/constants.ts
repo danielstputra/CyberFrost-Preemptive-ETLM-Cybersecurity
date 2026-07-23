@@ -63,6 +63,10 @@ export const ENDPOINTS = {
   // Sessions
   SESSIONS: `${API_PREFIX}/auth/sessions`,
 
+  // SOC Operations
+  SOC_DASHBOARD: `${API_PREFIX}/action/soc/dashboard`,
+  SOC_SHIFT: `${API_PREFIX}/action/soc/shift`,
+
   // Health
   HEALTH: `${API_PREFIX}/health`,
 } as const;
