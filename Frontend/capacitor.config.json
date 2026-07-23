@@ -7,13 +7,8 @@
     "allowMixedContent": true,
     "webContentsDebuggingEnabled": true
   },
-  "ios": {
-    "contentInset": "always",
-    "allowsLinkPreview": false
-  },
   "server": {
-    "androidScheme": "https",
-    "iosScheme": "capacitor",
+    "androidScheme": "http",
     "allowNavigation": ["*.railway.app"]
   },
   "plugins": {
