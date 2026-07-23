@@ -8,7 +8,7 @@ import {
   SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton,
   SidebarMenuItem, SidebarSeparator, useSidebar,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, Shield, Bug, Radio, Search, ShieldOff, Settings, Brain, Bell, Users, Radar, Webhook, Globe, Activity, Target, CheckCircle, Zap } from 'lucide-react';
+import { LayoutDashboard, Shield, Bug, Radio, Search, ShieldOff, Settings, Brain, Bell, Users, Radar, Webhook, Globe, Activity, Target, CheckCircle, Zap, FileText } from 'lucide-react';
 import { useTranslation } from '@/providers/translation-provider';
 import { LangSwitcher } from '@/components/ui/lang-switcher';
 import { useAuthStore } from '@/store/auth-store';
@@ -32,6 +32,7 @@ const NAV = [
   { labelKey: 'sidebar.socOperations', href: '/dashboard/soc-operations', icon: Activity, roles: ['SUPER_ADMIN', 'SOC_MANAGER', 'SOC_ANALYST', 'TENANT_ADMIN'] },
   { labelKey: 'sidebar.compliance', href: '/dashboard/compliance', icon: CheckCircle, roles: ['SUPER_ADMIN', 'SOC_MANAGER', 'TENANT_ADMIN', 'COMPLIANCE_OFFICER'] },
   { labelKey: 'sidebar.automation', href: '/dashboard/automation', icon: Zap, roles: ['SUPER_ADMIN', 'SOC_MANAGER', 'SOC_ANALYST', 'TENANT_ADMIN'] },
+  { labelKey: 'sidebar.reports', href: '/dashboard/reports', icon: FileText, roles: ['SUPER_ADMIN', 'SOC_MANAGER', 'TENANT_ADMIN', 'COMPLIANCE_OFFICER', 'EXECUTIVE_VIEWER'] },
   { labelKey: 'sidebar.actionMitigation', href: '/dashboard/action-mitigation', icon: ShieldOff, roles: ['SUPER_ADMIN', 'SOC_MANAGER', 'SOC_ANALYST', 'TENANT_ADMIN', 'SECURITY_OPERATOR'] },
   { labelKey: 'sidebar.tprm', href: '/dashboard/tprm', icon: Users, roles: ['SUPER_ADMIN', 'SOC_MANAGER', 'TENANT_ADMIN', 'COMPLIANCE_OFFICER'] },
   { labelKey: 'sidebar.warRoom', href: '/dashboard/war-room', icon: Radar, roles: ['SUPER_ADMIN', 'SOC_MANAGER', 'SOC_ANALYST', 'TENANT_ADMIN', 'SECURITY_OPERATOR'] },

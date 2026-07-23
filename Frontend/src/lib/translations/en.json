@@ -369,6 +369,7 @@
   "sidebar.threatHunting": "Threat Hunting",
   "sidebar.compliance": "Compliance",
   "sidebar.automation": "Automation",
+  "sidebar.reports": "Reports",
   "status": "Status",
   "submittedAt": "Date",
   "targetIp": "Target IP",

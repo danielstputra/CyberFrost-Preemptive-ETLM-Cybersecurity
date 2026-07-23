@@ -1,8 +1,15 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import { config } from './config';
 import reportRouter from './routes/report';
+import templatesRouter from './routes/reports';
 
 const app: express.Express = express();
+
+// Connect MongoDB
+if (config.mongodbUri) {
+  mongoose.connect(config.mongodbUri).then(() => console.log('[Report] MongoDB connected')).catch(() => {});
+}
 
 app.use(express.json({ limit: '10mb' }));
 
@@ -14,6 +21,7 @@ if (config.nodeEnv === 'development') {
 }
 
 app.use('/api/v1/reports', reportRouter);
+app.use('/api/v1/reports', templatesRouter);
 app.use('/api/v1/health', (_req, res) => {
   res.json({ status: 'healthy', service: 'report-service', uptime: process.uptime(), timestamp: new Date().toISOString() });
 });
