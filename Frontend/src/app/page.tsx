@@ -241,7 +241,7 @@ export default function LandingPage() {
                 {t('nav.signIn')} <ChevronRight className="h-4 w-4" />
               </HUDButton>
             </Link>
-            <a href="https://github.com/danielstputra/CyberFrost-Preemptive-ETLM-Cybersecurity/releases/tag/v2026.07.23"
+            <a href="https://github.com/danielstputra/CyberFrost-Preemptive-ETLM-Cybersecurity/releases/latest/download/app-debug.apk"
                target="_blank" rel="noopener noreferrer"
                className="inline-flex items-center gap-2 px-4 py-2.5 text-[10px] font-mono font-bold tracking-wider uppercase angle-sm transition-all duration-200"
                style={{ background: 'transparent', border: '1px solid #00F6FF', color: '#00F6FF' }}>
