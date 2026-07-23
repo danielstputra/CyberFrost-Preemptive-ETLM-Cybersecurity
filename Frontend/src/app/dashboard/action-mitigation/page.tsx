@@ -115,7 +115,17 @@ export default function ActionMitigationPage() {
   };
 
   const [tdForm, setTdForm] = useState({ targetUrl: '', domain: '', threatType: 'PHISHING', evidence: '' });
-  const handleTD = async () => { await submitTD.mutateAsync(tdForm); setShowTD(false); setTdForm({ targetUrl: '', domain: '', threatType: 'PHISHING', evidence: '' }); };
+  const [tdError, setTdError] = useState('');
+  const handleTD = async () => {
+    setTdError('');
+    try {
+      await submitTD.mutateAsync(tdForm);
+      setShowTD(false);
+      setTdForm({ targetUrl: '', domain: '', threatType: 'PHISHING', evidence: '' });
+    } catch (err: any) {
+      setTdError(err?.response?.data?.message || err?.response?.data?.error || 'Failed to submit takedown.');
+    }
+  };
   const [blForm, setBlForm] = useState({ targetIp: '', targetDomain: '', mitigationType: 'BLOCK_IP', description: '' });
   const handleBL = async () => { await manualBL.mutateAsync(blForm); setShowBL(false); setBlForm({ targetIp: '', targetDomain: '', mitigationType: 'BLOCK_IP', description: '' }); };
 
@@ -451,7 +461,15 @@ export default function ActionMitigationPage() {
           <Input className="cyber-input" placeholder={t('mitigation.domainPlaceholder')} value={tdForm.domain} onChange={e=>setTdForm({...tdForm,domain:e.target.value})} />
           <CyberSelect options={[{value:'PHISHING',label:'Phishing'},{value:'MALWARE',label:'Malware'},{value:'TRADEMARK',label:'Trademark'},{value:'JUDI_ONLINE',label:'Judi Online'},{value:'PHISHING_BANK_LOKAL',label:'Phishing Bank Lokal'},{value:'PENIPUAN_TRANSAKSI',label:'Penipuan Transaksi'}]}
             value={tdForm.threatType} onChange={v=>setTdForm({...tdForm,threatType:v})} placeholder={t('mitigation.threatTypePlaceholder')} />
-          <Input className="cyber-input" placeholder={t('mitigation.evidence')} value={tdForm.evidence} onChange={e=>setTdForm({...tdForm,evidence:e.target.value})} />
+          <div>
+            <label className="text-[8px] font-mono text-[#6F7C89] uppercase tracking-wider mb-1 block">Evidence (URLs or description)</label>
+            <Input className="cyber-input" placeholder="https://... or text description" value={tdForm.evidence} onChange={e=>setTdForm({...tdForm,evidence:e.target.value})} />
+          </div>
+          {tdError && (
+            <div className="border border-[#FF003C] p-2 bg-[rgba(255,0,60,0.05)]">
+              <p className="text-[9px] font-mono text-[#FF003C]">{tdError}</p>
+            </div>
+          )}
           <div className="flex justify-end gap-2 pt-2">
             <HUDButton variant="cyan" size="sm" onClick={()=>setShowTD(false)}>{t('mitigation.cancel')}</HUDButton>
             <HUDButton variant="yellow" size="sm" onClick={handleTD} loading={submitTD.isPending} disabled={!tdForm.targetUrl||!tdForm.domain} glitchText={t('mitigation.submit')}><Swords className="h-4 w-4" /></HUDButton>
