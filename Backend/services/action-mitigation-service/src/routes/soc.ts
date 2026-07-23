@@ -36,7 +36,7 @@ router.get('/dashboard', async (req: Request, res: Response) => {
       submittedAt: { $ne: null },
     }).select('submittedAt updatedAt status threatType').lean();
 
-    let totalMttr = 0; let totalMttc = 0; let slaBreaches = 0;
+    let totalMttr = 0; let slaBreaches = 0;
     let resolvedInPeriod = 0; let criticalCount = 0;
 
     for (const item of resolved) {
