@@ -367,6 +367,7 @@
   "sidebar.iocExplorer": "IOC Explorer",
   "sidebar.socOperations": "SOC Operations",
   "sidebar.threatHunting": "Threat Hunting",
+  "sidebar.compliance": "Compliance",
   "status": "Status",
   "submittedAt": "Date",
   "targetIp": "Target IP",

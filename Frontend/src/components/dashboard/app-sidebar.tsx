@@ -30,6 +30,7 @@ const NAV = [
   { labelKey: 'sidebar.brandProtection', href: '/dashboard/brand-protection', icon: Search, roles: ['SUPER_ADMIN', 'SOC_MANAGER', 'SOC_ANALYST', 'TENANT_ADMIN', 'SECURITY_OPERATOR'] },
   { labelKey: 'sidebar.integrations', href: '/dashboard/integrations', icon: Webhook, roles: ['SUPER_ADMIN', 'SOC_MANAGER', 'TENANT_ADMIN'] },
   { labelKey: 'sidebar.socOperations', href: '/dashboard/soc-operations', icon: Activity, roles: ['SUPER_ADMIN', 'SOC_MANAGER', 'SOC_ANALYST', 'TENANT_ADMIN'] },
+  { labelKey: 'sidebar.compliance', href: '/dashboard/compliance', icon: CheckCircle, roles: ['SUPER_ADMIN', 'SOC_MANAGER', 'TENANT_ADMIN', 'COMPLIANCE_OFFICER'] },
   { labelKey: 'sidebar.actionMitigation', href: '/dashboard/action-mitigation', icon: ShieldOff, roles: ['SUPER_ADMIN', 'SOC_MANAGER', 'SOC_ANALYST', 'TENANT_ADMIN', 'SECURITY_OPERATOR'] },
   { labelKey: 'sidebar.tprm', href: '/dashboard/tprm', icon: Users, roles: ['SUPER_ADMIN', 'SOC_MANAGER', 'TENANT_ADMIN', 'COMPLIANCE_OFFICER'] },
   { labelKey: 'sidebar.warRoom', href: '/dashboard/war-room', icon: Radar, roles: ['SUPER_ADMIN', 'SOC_MANAGER', 'SOC_ANALYST', 'TENANT_ADMIN', 'SECURITY_OPERATOR'] },
