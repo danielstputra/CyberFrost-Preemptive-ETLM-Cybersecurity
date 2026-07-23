@@ -1,12 +1,15 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { API_GATEWAY_URL } from './constants';
 
 /**
  * Axios instance configured to call the Backend API Gateway.
  * Automatically attaches JWT token and handles 401 responses.
+ *
+ * Note: baseURL dikosongkan biar request pake relative path (/api/v1/...).
+ * Next.js rewrite akan memproxynya ke API Gateway yang asli.
+ * Ini bikin URL di Network tab tampil sebagai cyberfrost.vercel.app/api/v1/...
  */
 const apiClient = axios.create({
-  baseURL: API_GATEWAY_URL,
+  baseURL: '',
   timeout: 30_000,
   headers: { 'Content-Type': 'application/json' },
 });
@@ -37,7 +40,7 @@ apiClient.interceptors.response.use(
         const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) throw new Error('No refresh token');
 
-        const res = await axios.post(`${API_GATEWAY_URL}/api/v1/auth/refresh`, {
+        const res = await axios.post('/api/v1/auth/refresh', {
           refreshToken,
         });
 

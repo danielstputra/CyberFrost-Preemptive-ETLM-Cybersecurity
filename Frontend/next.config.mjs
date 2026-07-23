@@ -14,14 +14,10 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 const nextConfig = {
   async rewrites() {
     return [
-      // Proxy API docs ke backend (Swagger UI)
+      // Proxy semua /api/v1/* ke backend (biar network URL pake domain yang sama)
       {
-        source: '/api/v1/docs',
-        destination: `${API_URL}/api/v1/docs`,
-      },
-      {
-        source: '/api/v1/docs.json',
-        destination: `${API_URL}/api/v1/docs.json`,
+        source: '/api/v1/:path*',
+        destination: `${API_URL}/api/v1/:path*`,
       },
     ];
   },
