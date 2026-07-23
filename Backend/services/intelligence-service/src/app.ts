@@ -7,6 +7,7 @@ import threatActorRouter from './routes/threat-actors';
 import searchRouter from './routes/search';
 import threatScoreRouter from './routes/threat-score';
 import iocsRouter from './routes/iocs';
+import huntingRouter from './routes/hunting';
 import healthRouter from './routes/health';
 
 const app: express.Express = express();
@@ -27,6 +28,7 @@ if (config.nodeEnv === 'development') {
 app.use('/api/v1/intelligence', intelRouter);
 app.use('/api/v1/intelligence', threatScoreRouter);  // /threat-scores/*
 app.use('/api/v1/intelligence', iocsRouter);          // /iocs/*
+app.use('/api/v1/intelligence', huntingRouter);        // /hunting/*
 app.use('/api/v1/intelligence/threat-actors', threatActorRouter);
 app.use('/api/v1/search', searchRouter);
 app.use('/api/v1/health', healthRouter);

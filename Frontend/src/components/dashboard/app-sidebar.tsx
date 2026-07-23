@@ -8,7 +8,7 @@ import {
   SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton,
   SidebarMenuItem, SidebarSeparator, useSidebar,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, Shield, Bug, Radio, Search, ShieldOff, Settings, Brain, Bell, Users, Radar, Webhook, Globe, Activity } from 'lucide-react';
+import { LayoutDashboard, Shield, Bug, Radio, Search, ShieldOff, Settings, Brain, Bell, Users, Radar, Webhook, Globe, Activity, Target } from 'lucide-react';
 import { useTranslation } from '@/providers/translation-provider';
 import { LangSwitcher } from '@/components/ui/lang-switcher';
 import { useAuthStore } from '@/store/auth-store';
@@ -21,6 +21,7 @@ type UserRole = 'SUPER_ADMIN' | 'SOC_MANAGER' | 'SOC_ANALYST' | 'TENANT_ADMIN' |
 const NAV = [
   { labelKey: 'sidebar.executiveView', href: '/dashboard', icon: LayoutDashboard, roles: ['SUPER_ADMIN', 'SOC_MANAGER', 'SOC_ANALYST', 'TENANT_ADMIN', 'SECURITY_OPERATOR', 'COMPLIANCE_OFFICER', 'EXECUTIVE_VIEWER'] },
   { labelKey: 'sidebar.attackSurface', href: '/dashboard/attack-surface', icon: Shield, roles: ['SUPER_ADMIN', 'SOC_MANAGER', 'SOC_ANALYST', 'TENANT_ADMIN', 'SECURITY_OPERATOR'] },
+  { labelKey: 'sidebar.threatHunting', href: '/dashboard/threat-hunting', icon: Target, roles: ['SUPER_ADMIN', 'SOC_MANAGER', 'SOC_ANALYST', 'TENANT_ADMIN'] },
   { labelKey: 'sidebar.vulnerabilities', href: '/dashboard/vulnerabilities', icon: Bug, roles: ['SUPER_ADMIN', 'SOC_MANAGER', 'SOC_ANALYST', 'TENANT_ADMIN', 'SECURITY_OPERATOR', 'COMPLIANCE_OFFICER', 'EXECUTIVE_VIEWER'] },
   { labelKey: 'sidebar.threatIntel', href: '/dashboard/threat-intel', icon: Radio, roles: ['SUPER_ADMIN', 'SOC_MANAGER', 'SOC_ANALYST', 'TENANT_ADMIN', 'SECURITY_OPERATOR', 'COMPLIANCE_OFFICER', 'EXECUTIVE_VIEWER'] },
   { labelKey: 'sidebar.executives', href: '/dashboard/executives', icon: Shield, roles: ['SUPER_ADMIN', 'SOC_MANAGER', 'TENANT_ADMIN'] },

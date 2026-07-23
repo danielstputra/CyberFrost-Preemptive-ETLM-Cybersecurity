@@ -366,6 +366,7 @@
   "sidebar.aiInsights": "AI Insights",
   "sidebar.iocExplorer": "IOC Explorer",
   "sidebar.socOperations": "SOC Operations",
+  "sidebar.threatHunting": "Threat Hunting",
   "status": "Status",
   "submittedAt": "Date",
   "targetIp": "Target IP",
