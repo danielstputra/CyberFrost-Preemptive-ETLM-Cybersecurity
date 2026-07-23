@@ -29,247 +29,74 @@ if %MONTH%==11 set MONTH_NAME=Nopember
 if %MONTH%==12 set MONTH_NAME=Desember
 
 set DATE_ID=%DAY% %MONTH_NAME% %YEAR%
-
-set SKIP_DIRS=node_modules .next out dist .git android .pnpm-store coverage __pycache__
+set COUNT=0
+set BACKUP_DIR=watermark-backup_%YEAR%%MONTH%%DAY%
 
 echo =============================================
 echo   CyberFrost Watermark Tool
 echo   Adding developer watermark to source files
 echo =============================================
 echo.
+echo Backup folder: %BACKUP_DIR%
+echo.
 
-set COUNT=0
-
-:: Skip binary dan sistem file
-set SKIP_EXT=.ico .png .jpg .jpeg .gif .bmp .webp .svg .woff .woff2 .ttf .eot .otf .pdf .zip .tar .gz .7z .rar .exe .dll .so .dylib .o .a .pyc .class .dex .apk .aab .keystore .jks .p12
-set TEXT_EXT=.ts .tsx .js .jsx .mjs .cjs .mts .cts .css .scss .sass .less .html .htm .xml .vue .svelte .py .yml .yaml .java .kt .sql .sh .bash .zsh .json .gradle .prisma .go .php .rb .rs .swift .pl .lua .bat .cmd .ps1 .env .gitignore .dockerignore .npmrc .yarnrc .prettierrc .editorconfig .vercelignore .railway .example .local .production .txt .md .graphql .gql .proto .tf .hcl .makefile .cfg .ini .conf .toml .lock .yaml .yml
-
-for /r %%F in (%TEXT_EXT%) do (
+for /r %%F in (
+    *.ts *.tsx *.js *.jsx *.mjs *.cjs *.mts *.cts
+    *.css *.scss *.sass *.less
+    *.html *.htm *.xml *.vue *.svelte *.md *.svg
+    *.json *.prettierrc *.editorconfig
+    *.py *.yml *.yaml *.sh *.bash *.zsh *.ps1
+    *.java *.kt *.go *.php *.rb *.rs *.swift *.pl
+    *.sql *.lua
+    *.gradle
+    *.bat *.cmd
+    *.env *.gitignore *.npmrc *.prisma *.tf
+    *.txt *.graphql *.gql *.proto
+) do (
     setlocal enabledelayedexpansion
-    set FILE=%%F
     set REL=%%F
     set REL=!REL:%CD%\=!
     set DESC=Source file
-
-    :: Skip folders
-    set SKIP=0
-    for %%D in (%SKIP_DIRS%) do (
-        echo !REL! | findstr /I /C:"\%%D\" >nul && set SKIP=1
-        echo !REL! | findstr /I /C:"\%%D" >nul && if "%%D"=="!REL!" set SKIP=1
-    )
-    if !SKIP!==1 goto NEXT_FILE
-
-    :: Cek watermark sudah ada
-    findstr /M /C:"REMOVING OR MODIFYING THE DEVELOPER" "%%F" >nul 2>&1
-    if !errorlevel! equ 0 (
-        echo     OK  !REL!
-        goto NEXT_FILE
-    )
-
-    :: Deteksi tipe file dari folder
-    echo !REL! | findstr /I "\\routes\\" >nul && set DESC=Route handler
-    echo !REL! | findstr /I "\\services\\" >nul && set DESC=Business logic service
-    echo !REL! | findstr /I "\\models\\" >nul && set DESC=Database model
-    echo !REL! | findstr /I "\\middleware\\" >nul && set DESC=Middleware
-    echo !REL! | findstr /I "\\hooks\\" >nul && set DESC=React hook
-    echo !REL! | findstr /I "\\components\\" >nul && set DESC=React component
-    echo !REL! | findstr /I "\\store\\" >nul && set DESC=State store
-    echo !REL! | findstr /I "\\providers\\" >nul && set DESC=React provider
-    echo !REL! | findstr /I "\\config\\" >nul && set DESC=Configuration
-    echo !REL! | findstr /I "\\utils\\" >nul && set DESC=Utility function
-    echo !REL! | findstr /I "\\types\\" >nul && set DESC=TypeScript definition
-    echo !REL! | findstr /I "\\lib\\" >nul && set DESC=Library utility
-    echo !REL! | findstr /I "\\app\\" >nul && set DESC=Next.js app page
-    echo !REL! | findstr /I "\\pages\\" >nul && set DESC=Page component
-    echo !REL! | findstr /I "\\queue\\" >nul && set DESC=Message queue
-    echo !REL! | findstr /I "\\jobs\\" >nul && set DESC=Cron job / scheduled task
-
-    :: Tentukan comment style berdasarkan ekstensi
     set EXT=%%~xF
-    set COMMENT_STYLE=BLOCK_SINGLE     :: /* */ untuk .ts .js .tsx .jsx .css .java .kt .swift .go .php .rs
-    if /I "!EXT!"==".html" set COMMENT_STYLE=HTML
-    if /I "!EXT!"==".htm" set COMMENT_STYLE=HTML
-    if /I "!EXT!"==".xml" set COMMENT_STYLE=HTML
-    if /I "!EXT!"==".vue" set COMMENT_STYLE=HTML
-    if /I "!EXT!"==".svelte" set COMMENT_STYLE=HTML
-    if /I "!EXT!"==".md" set COMMENT_STYLE=HTML
-    if /I "!EXT!"==".py" set COMMENT_STYLE=PYTHON
-    if /I "!EXT!"==".yml" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".yaml" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".sh" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".bash" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".zsh" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".ps1" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".sql" set COMMENT_STYLE=SQL
-    if /I "!EXT!"==".prisma" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".rb" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".pl" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".lua" set COMMENT_STYLE=SQL
-    if /I "!EXT!"==".gradle" set COMMENT_STYLE=JAVA
-    if /I "!EXT!"==".json" set COMMENT_STYLE=JSON
-    if /I "!EXT!"==".prettierrc" set COMMENT_STYLE=JSON
-    if /I "!EXT!"==".bat" set COMMENT_STYLE=BAT
-    if /I "!EXT!"==".cmd" set COMMENT_STYLE=BAT
-    if /I "!EXT!"==".env" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".gitignore" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".dockerignore" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".npmrc" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".yarnrc" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".vercelignore" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".graphql" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".gql" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".tf" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".hcl" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".makefile" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".cfg" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".ini" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".conf" set COMMENT_STYLE=HASH
-    if /I "!EXT!"==".proto" set COMMENT_STYLE=JAVA
 
-    :: Buat watermark + konten asli
-    (
-        if "!COMMENT_STYLE!"=="HTML" (
-            echo ^<!--=============================================================================
-            echo   %APP_NAME% - %APP_DESC%
-            echo   =============================================================================
-            echo   Project      : %PROJECT%
-            echo   Developer    : %DEV_NAME% ^(%DEV_EMAIL%^)
-            echo   Website      : %URL%
-            echo   License      : %ORG%
-            echo   File         : %%F
-            echo   Description  : !DESC!
-            echo   Last Updated : %DATE_ID%
-            echo.
-            echo   IMPORTANT NOTE:
-            echo   Modification of this code is permitted for development purposes only.
-            echo   REMOVING OR MODIFYING THE DEVELOPER NAME IS STRICTLY PROHIBITED.
-            echo.
-            echo   LEGAL WARNING:
-            echo   Unauthorized distribution or modification of authorship information
-            echo   is subject to legal action under Indonesian Law:
-            echo   - UU No. 28 Tahun 2014 tentang Hak Cipta.
-            echo   - UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik ^(UU ITE^).
-            echo  ============================================================================--^>
-        ) else if "!COMMENT_STYLE!"=="PYTHON" (
-            echo # =============================================================================
-            echo # %APP_NAME% - %APP_DESC%
-            echo # =============================================================================
-            echo # Project      : %PROJECT%
-            echo # Developer    : %DEV_NAME% ^(%DEV_EMAIL%^)
-            echo # Website      : %URL%
-            echo # License      : %ORG%
-            echo # File         : %%F
-            echo # Description  : !DESC!
-            echo # Last Updated : %DATE_ID%
-            echo #
-            echo # IMPORTANT NOTE:
-            echo # Modification of this code is permitted for development purposes only.
-            echo # REMOVING OR MODIFYING THE DEVELOPER NAME IS STRICTLY PROHIBITED.
-            echo #
-            echo # LEGAL WARNING:
-            echo # Unauthorized distribution or modification of authorship information
-            echo # is subject to legal action under Indonesian Law:
-            echo # - UU No. 28 Tahun 2014 tentang Hak Cipta.
-            echo # - UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik ^(UU ITE^).
-            echo # =============================================================================
-        ) else if "!COMMENT_STYLE!"=="HASH" (
-            echo # =============================================================================
-            echo # %APP_NAME% - %APP_DESC%
-            echo # =============================================================================
-            echo # Project      : %PROJECT%
-            echo # Developer    : %DEV_NAME% ^(%DEV_EMAIL%^)
-            echo # Website      : %URL%
-            echo # License      : %ORG%
-            echo # File         : %%F
-            echo # Description  : !DESC!
-            echo # Last Updated : %DATE_ID%
-            echo #
-            echo # IMPORTANT NOTE:
-            echo # Modification of this code is permitted for development purposes only.
-            echo # REMOVING OR MODIFYING THE DEVELOPER NAME IS STRICTLY PROHIBITED.
-            echo #
-            echo # LEGAL WARNING:
-            echo # Unauthorized distribution or modification of authorship information
-            echo # is subject to legal action under Indonesian Law:
-            echo # - UU No. 28 Tahun 2014 tentang Hak Cipta.
-            echo # - UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik ^(UU ITE^).
-            echo # =============================================================================
-        ) else if "!COMMENT_STYLE!"=="JSON" (
-            echo // =============================================================================
-            echo // %APP_NAME% - %APP_DESC%
-            echo // =============================================================================
-            echo // Project      : %PROJECT%
-            echo // Developer    : %DEV_NAME% ^(%DEV_EMAIL%^)
-            echo // Website      : %URL%
-            echo // License      : %ORG%
-            echo // File         : %%F
-            echo // Description  : !DESC!
-            echo // Last Updated : %DATE_ID%
-            echo //
-            echo // IMPORTANT NOTE:
-            echo // Modification of this code is permitted for development purposes only.
-            echo // REMOVING OR MODIFYING THE DEVELOPER NAME IS STRICTLY PROHIBITED.
-            echo //
-            echo // LEGAL WARNING:
-            echo // Unauthorized distribution or modification of authorship information
-            echo // is subject to legal action under Indonesian Law:
-            echo // - UU No. 28 Tahun 2014 tentang Hak Cipta.
-            echo // - UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik ^(UU ITE^).
-            echo // =============================================================================
-        ) else if "!COMMENT_STYLE!"=="BAT" (
-            echo REM =============================================================================
-            echo REM %APP_NAME% - %APP_DESC%
-            echo REM =============================================================================
-            echo REM Project      : %PROJECT%
-            echo REM Developer    : %DEV_NAME% ^(%DEV_EMAIL%^)
-            echo REM Website      : %URL%
-            echo REM License      : %ORG%
-            echo REM File         : %%F
-            echo REM Description  : !DESC!
-            echo REM Last Updated : %DATE_ID%
-            echo REM
-            echo REM IMPORTANT NOTE:
-            echo REM Modification of this code is permitted for development purposes only.
-            echo REM REMOVING OR MODIFYING THE DEVELOPER NAME IS STRICTLY PROHIBITED.
-            echo REM
-            echo REM LEGAL WARNING:
-            echo REM Unauthorized distribution or modification of authorship information
-            echo REM is subject to legal action under Indonesian Law:
-            echo REM - UU No. 28 Tahun 2014 tentang Hak Cipta.
-            echo REM - UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik ^(UU ITE^).
-            echo REM =============================================================================
-        ) else (
-            echo /*=============================================================================
-            echo  * %APP_NAME% - %APP_DESC%
-            echo  * =============================================================================
-            echo  * Project      : %PROJECT%
-            echo  * Developer    : %DEV_NAME% ^(%DEV_EMAIL%^)
-            echo  * Website      : %URL%
-            echo  * License      : %ORG%
-            echo  * File         : %%F
-            echo  * Description  : !DESC!
-            echo  * Last Updated : %DATE_ID%
-            echo  *
-            echo  * IMPORTANT NOTE:
-            echo  * Modification of this code is permitted for development purposes only.
-            echo  * REMOVING OR MODIFYING THE DEVELOPER NAME IS STRICTLY PROHIBITED.
-            echo  *
-            echo  * LEGAL WARNING:
-            echo  * Unauthorized distribution or modification of authorship information
-            echo  * is subject to legal action under Indonesian Law:
-            echo  * - UU No. 28 Tahun 2014 tentang Hak Cipta.
-            echo  * - UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik ^(UU ITE^).
-            echo  *============================================================================*/
-        )
-        echo.
-        type "%%F"
-    ) > "%%F.tmp"
+    rem Skip node_modules, .git, dll
+    echo !REL! | findstr /I "\node_modules\" >nul && goto NXT
+    echo !REL! | findstr /I "\.git\" >nul && goto NXT
+    echo !REL! | findstr /I "\.next\" >nul && goto NXT
+    echo !REL! | findstr /I "\out\" >nul && goto NXT
+    echo !REL! | findstr /I "\dist\" >nul && goto NXT
+    echo !REL! | findstr /I "\android\" >nul && goto NXT
+    echo !REL! | findstr /I "\coverage\" >nul && goto NXT
+    echo !REL! | findstr /I "\pnpm-store\" >nul && goto NXT
+    echo !REL! | findstr /I "\\.vercel\" >nul && goto NXT
 
-    move /Y "%%F.tmp" "%%F" >nul
-    set /a COUNT+=1
-    echo     ADD !REL!  ^(!COMMENT_STYLE!^)
+    rem Cek watermark sudah ada
+    findstr /M /C:"REMOVING OR MODIFYING THE DEVELOPER" "%%F" >nul 2>&1
+    if !errorlevel! equ 0 goto NXT
 
-:NEXT_FILE
+    rem Deteksi deskripsi dari folder
+    echo !REL! | findstr /I "\routes\" >nul && set DESC=Route handler
+    echo !REL! | findstr /I "\services\" >nul && set DESC=Business logic service
+    echo !REL! | findstr /I "\models\" >nul && set DESC=Database model
+    echo !REL! | findstr /I "\middleware\" >nul && set DESC=Middleware
+    echo !REL! | findstr /I "\hooks\" >nul && set DESC=React hook
+    echo !REL! | findstr /I "\components\" >nul && set DESC=React component
+    echo !REL! | findstr /I "\store\" >nul && set DESC=State store
+    echo !REL! | findstr /I "\providers\" >nul && set DESC=React provider
+    echo !REL! | findstr /I "\config\" >nul && set DESC=Configuration
+    echo !REL! | findstr /I "\utils\" >nul && set DESC=Utility function
+    echo !REL! | findstr /I "\types\" >nul && set DESC=TypeScript definition
+    echo !REL! | findstr /I "\lib\" >nul && set DESC=Library utility
+    echo !REL! | findstr /I "\app\" >nul && set DESC=Next.js app page
+    echo !REL! | findstr /I "\pages\" >nul && set DESC=Page component
+    echo !REL! | findstr /I "\queue\" >nul && set DESC=Message queue
+    echo !REL! | findstr /I "\jobs\" >nul && set DESC=Cron job / scheduled task
+
+    rem Buat watermark + konten asli
+    call :ADD_WATERMARK "%%F" "!REL!" "!DESC!" "!EXT!"
+    if !errorlevel! equ 0 set /a COUNT+=1
+
+:NXT
     endlocal
 )
 
@@ -278,3 +105,281 @@ echo =============================================
 echo   Selesai! %COUNT% files watermarked.
 echo =============================================
 pause
+exit /b
+
+rem ===== SUB: ADD_WATERMARK =====
+:ADD_WATERMARK
+set FILE=%~1
+set REL=%~2
+set DESC=%~3
+set EXT=%~4
+
+rem Buat folder backup + copy file asli
+if not exist "%BACKUP_DIR%" mkdir "%BACKUP_DIR%" >nul 2>&1
+set BACKUP_DEST=%BACKUP_DIR%\%REL:\=\%
+if not exist "%BACKUP_DEST%" (
+    copy "%~1" "%BACKUP_DEST%.bak" >nul 2>&1
+)
+
+if /I "%EXT%"==".html" goto :STYLE_HTML
+if /I "%EXT%"==".htm" goto :STYLE_HTML
+if /I "%EXT%"==".xml" goto :STYLE_HTML
+if /I "%EXT%"==".vue" goto :STYLE_HTML
+if /I "%EXT%"==".svelte" goto :STYLE_HTML
+if /I "%EXT%"==".md" goto :STYLE_HTML
+if /I "%EXT%"==".py" goto :STYLE_PYTHON
+if /I "%EXT%"==".yml" goto :STYLE_HASH
+if /I "%EXT%"==".yaml" goto :STYLE_HASH
+if /I "%EXT%"==".sh" goto :STYLE_HASH
+if /I "%EXT%"==".bash" goto :STYLE_HASH
+if /I "%EXT%"==".zsh" goto :STYLE_HASH
+if /I "%EXT%"==".ps1" goto :STYLE_HASH
+if /I "%EXT%"==".env" goto :STYLE_HASH
+if /I "%EXT%"==".gitignore" goto :STYLE_HASH
+if /I "%EXT%"==".npmrc" goto :STYLE_HASH
+if /I "%EXT%"==".prisma" goto :STYLE_HASH
+if /I "%EXT%"==".tf" goto :STYLE_HASH
+if /I "%EXT%"==".graphql" goto :STYLE_HASH
+if /I "%EXT%"==".gql" goto :STYLE_HASH
+if /I "%EXT%"==".sql" goto :STYLE_SQL
+if /I "%EXT%"==".lua" goto :STYLE_SQL
+if /I "%EXT%"==".json" goto :STYLE_JSON
+if /I "%EXT%"==".prettierrc" goto :STYLE_JSON
+if /I "%EXT%"==".editorconfig" goto :STYLE_JSON
+if /I "%EXT%"==".gradle" goto :STYLE_JAVA
+if /I "%EXT%"==".proto" goto :STYLE_JAVA
+if /I "%EXT%"==".bat" goto :STYLE_BAT
+if /I "%EXT%"==".cmd" goto :STYLE_BAT
+goto :STYLE_BLOCK
+
+:STYLE_BLOCK
+type NUL > "%FILE%.tmp"
+>> "%FILE%.tmp" echo /*=============================================================================
+>> "%FILE%.tmp" echo  * %APP_NAME% - %APP_DESC%
+>> "%FILE%.tmp" echo  * =============================================================================
+>> "%FILE%.tmp" echo  * Project      : %PROJECT%
+>> "%FILE%.tmp" echo  * Developer    : %DEV_NAME% ^(%DEV_EMAIL%^)
+>> "%FILE%.tmp" echo  * Website      : %URL%
+>> "%FILE%.tmp" echo  * License      : %ORG%
+>> "%FILE%.tmp" echo  * File         : %FILE%
+>> "%FILE%.tmp" echo  * Description  : %DESC%
+>> "%FILE%.tmp" echo  * Last Updated : %DATE_ID%
+>> "%FILE%.tmp" echo  *
+>> "%FILE%.tmp" echo  * IMPORTANT NOTE:
+>> "%FILE%.tmp" echo  * Modification of this code is permitted for development purposes only.
+>> "%FILE%.tmp" echo  * REMOVING OR MODIFYING THE DEVELOPER NAME IS STRICTLY PROHIBITED.
+>> "%FILE%.tmp" echo  *
+>> "%FILE%.tmp" echo  * LEGAL WARNING:
+>> "%FILE%.tmp" echo  * Unauthorized distribution or modification of authorship information
+>> "%FILE%.tmp" echo  * is subject to legal action under Indonesian Law:
+>> "%FILE%.tmp" echo  * - UU No. 28 Tahun 2014 tentang Hak Cipta.
+>> "%FILE%.tmp" echo  * - UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik ^(UU ITE^).
+>> "%FILE%.tmp" echo  *============================================================================*/
+>> "%FILE%.tmp" echo.
+type "%FILE%" >> "%FILE%.tmp"
+move /Y "%FILE%.tmp" "%FILE%" >nul
+echo     ADD %REL%  ^({%EXT%}^)
+exit /b 0
+
+:STYLE_HTML
+type NUL > "%FILE%.tmp"
+>> "%FILE%.tmp" echo ^<!--=============================================================================
+>> "%FILE%.tmp" echo   %APP_NAME% - %APP_DESC%
+>> "%FILE%.tmp" echo   =============================================================================
+>> "%FILE%.tmp" echo   Project      : %PROJECT%
+>> "%FILE%.tmp" echo   Developer    : %DEV_NAME% ^(%DEV_EMAIL%^)
+>> "%FILE%.tmp" echo   Website      : %URL%
+>> "%FILE%.tmp" echo   License      : %ORG%
+>> "%FILE%.tmp" echo   File         : %FILE%
+>> "%FILE%.tmp" echo   Description  : %DESC%
+>> "%FILE%.tmp" echo   Last Updated : %DATE_ID%
+>> "%FILE%.tmp" echo.
+>> "%FILE%.tmp" echo   IMPORTANT NOTE:
+>> "%FILE%.tmp" echo   Modification of this code is permitted for development purposes only.
+>> "%FILE%.tmp" echo   REMOVING OR MODIFYING THE DEVELOPER NAME IS STRICTLY PROHIBITED.
+>> "%FILE%.tmp" echo.
+>> "%FILE%.tmp" echo   LEGAL WARNING:
+>> "%FILE%.tmp" echo   Unauthorized distribution or modification of authorship information
+>> "%FILE%.tmp" echo   is subject to legal action under Indonesian Law:
+>> "%FILE%.tmp" echo   - UU No. 28 Tahun 2014 tentang Hak Cipta.
+>> "%FILE%.tmp" echo   - UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik ^(UU ITE^).
+>> "%FILE%.tmp" echo  ============================================================================--^>
+>> "%FILE%.tmp" echo.
+type "%FILE%" >> "%FILE%.tmp"
+move /Y "%FILE%.tmp" "%FILE%" >nul
+echo     ADD %REL%  ^({%EXT%}^)
+exit /b 0
+
+:STYLE_PYTHON
+type NUL > "%FILE%.tmp"
+>> "%FILE%.tmp" echo # =============================================================================
+>> "%FILE%.tmp" echo # %APP_NAME% - %APP_DESC%
+>> "%FILE%.tmp" echo # =============================================================================
+>> "%FILE%.tmp" echo # Project      : %PROJECT%
+>> "%FILE%.tmp" echo # Developer    : %DEV_NAME% ^(%DEV_EMAIL%^)
+>> "%FILE%.tmp" echo # Website      : %URL%
+>> "%FILE%.tmp" echo # License      : %ORG%
+>> "%FILE%.tmp" echo # File         : %FILE%
+>> "%FILE%.tmp" echo # Description  : %DESC%
+>> "%FILE%.tmp" echo # Last Updated : %DATE_ID%
+>> "%FILE%.tmp" echo #
+>> "%FILE%.tmp" echo # IMPORTANT NOTE:
+>> "%FILE%.tmp" echo # Modification of this code is permitted for development purposes only.
+>> "%FILE%.tmp" echo # REMOVING OR MODIFYING THE DEVELOPER NAME IS STRICTLY PROHIBITED.
+>> "%FILE%.tmp" echo #
+>> "%FILE%.tmp" echo # LEGAL WARNING:
+>> "%FILE%.tmp" echo # Unauthorized distribution or modification of authorship information
+>> "%FILE%.tmp" echo # is subject to legal action under Indonesian Law:
+>> "%FILE%.tmp" echo # - UU No. 28 Tahun 2014 tentang Hak Cipta.
+>> "%FILE%.tmp" echo # - UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik ^(UU ITE^).
+>> "%FILE%.tmp" echo # =============================================================================
+>> "%FILE%.tmp" echo.
+type "%FILE%" >> "%FILE%.tmp"
+move /Y "%FILE%.tmp" "%FILE%" >nul
+echo     ADD %REL%  ^({%EXT%}^)
+exit /b 0
+
+:STYLE_HASH
+type NUL > "%FILE%.tmp"
+>> "%FILE%.tmp" echo # =============================================================================
+>> "%FILE%.tmp" echo # %APP_NAME% - %APP_DESC%
+>> "%FILE%.tmp" echo # =============================================================================
+>> "%FILE%.tmp" echo # Project      : %PROJECT%
+>> "%FILE%.tmp" echo # Developer    : %DEV_NAME% ^(%DEV_EMAIL%^)
+>> "%FILE%.tmp" echo # Website      : %URL%
+>> "%FILE%.tmp" echo # License      : %ORG%
+>> "%FILE%.tmp" echo # File         : %FILE%
+>> "%FILE%.tmp" echo # Description  : %DESC%
+>> "%FILE%.tmp" echo # Last Updated : %DATE_ID%
+>> "%FILE%.tmp" echo #
+>> "%FILE%.tmp" echo # IMPORTANT NOTE:
+>> "%FILE%.tmp" echo # Modification of this code is permitted for development purposes only.
+>> "%FILE%.tmp" echo # REMOVING OR MODIFYING THE DEVELOPER NAME IS STRICTLY PROHIBITED.
+>> "%FILE%.tmp" echo #
+>> "%FILE%.tmp" echo # LEGAL WARNING:
+>> "%FILE%.tmp" echo # Unauthorized distribution or modification of authorship information
+>> "%FILE%.tmp" echo # is subject to legal action under Indonesian Law:
+>> "%FILE%.tmp" echo # - UU No. 28 Tahun 2014 tentang Hak Cipta.
+>> "%FILE%.tmp" echo # - UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik ^(UU ITE^).
+>> "%FILE%.tmp" echo # =============================================================================
+>> "%FILE%.tmp" echo.
+type "%FILE%" >> "%FILE%.tmp"
+move /Y "%FILE%.tmp" "%FILE%" >nul
+echo     ADD %REL%  ^({%EXT%}^)
+exit /b 0
+
+:STYLE_JSON
+type NUL > "%FILE%.tmp"
+>> "%FILE%.tmp" echo // =============================================================================
+>> "%FILE%.tmp" echo // %APP_NAME% - %APP_DESC%
+>> "%FILE%.tmp" echo // =============================================================================
+>> "%FILE%.tmp" echo // Project      : %PROJECT%
+>> "%FILE%.tmp" echo // Developer    : %DEV_NAME% ^(%DEV_EMAIL%^)
+>> "%FILE%.tmp" echo // Website      : %URL%
+>> "%FILE%.tmp" echo // License      : %ORG%
+>> "%FILE%.tmp" echo // File         : %FILE%
+>> "%FILE%.tmp" echo // Description  : %DESC%
+>> "%FILE%.tmp" echo // Last Updated : %DATE_ID%
+>> "%FILE%.tmp" echo //
+>> "%FILE%.tmp" echo // IMPORTANT NOTE:
+>> "%FILE%.tmp" echo // Modification of this code is permitted for development purposes only.
+>> "%FILE%.tmp" echo // REMOVING OR MODIFYING THE DEVELOPER NAME IS STRICTLY PROHIBITED.
+>> "%FILE%.tmp" echo //
+>> "%FILE%.tmp" echo // LEGAL WARNING:
+>> "%FILE%.tmp" echo // Unauthorized distribution or modification of authorship information
+>> "%FILE%.tmp" echo // is subject to legal action under Indonesian Law:
+>> "%FILE%.tmp" echo // - UU No. 28 Tahun 2014 tentang Hak Cipta.
+>> "%FILE%.tmp" echo // - UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik ^(UU ITE^).
+>> "%FILE%.tmp" echo // =============================================================================
+>> "%FILE%.tmp" echo.
+type "%FILE%" >> "%FILE%.tmp"
+move /Y "%FILE%.tmp" "%FILE%" >nul
+echo     ADD %REL%  ^({%EXT%}^)
+exit /b 0
+
+:STYLE_SQL
+type NUL > "%FILE%.tmp"
+>> "%FILE%.tmp" echo -- =============================================================================
+>> "%FILE%.tmp" echo -- %APP_NAME% - %APP_DESC%
+>> "%FILE%.tmp" echo -- =============================================================================
+>> "%FILE%.tmp" echo -- Project      : %PROJECT%
+>> "%FILE%.tmp" echo -- Developer    : %DEV_NAME% ^(%DEV_EMAIL%^)
+>> "%FILE%.tmp" echo -- Website      : %URL%
+>> "%FILE%.tmp" echo -- License      : %ORG%
+>> "%FILE%.tmp" echo -- File         : %FILE%
+>> "%FILE%.tmp" echo -- Description  : %DESC%
+>> "%FILE%.tmp" echo -- Last Updated : %DATE_ID%
+>> "%FILE%.tmp" echo --
+>> "%FILE%.tmp" echo -- IMPORTANT NOTE:
+>> "%FILE%.tmp" echo -- Modification of this code is permitted for development purposes only.
+>> "%FILE%.tmp" echo -- REMOVING OR MODIFYING THE DEVELOPER NAME IS STRICTLY PROHIBITED.
+>> "%FILE%.tmp" echo --
+>> "%FILE%.tmp" echo -- LEGAL WARNING:
+>> "%FILE%.tmp" echo -- Unauthorized distribution or modification of authorship information
+>> "%FILE%.tmp" echo -- is subject to legal action under Indonesian Law:
+>> "%FILE%.tmp" echo -- - UU No. 28 Tahun 2014 tentang Hak Cipta.
+>> "%FILE%.tmp" echo -- - UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik ^(UU ITE^).
+>> "%FILE%.tmp" echo -- =============================================================================
+>> "%FILE%.tmp" echo.
+type "%FILE%" >> "%FILE%.tmp"
+move /Y "%FILE%.tmp" "%FILE%" >nul
+echo     ADD %REL%  ^({%EXT%}^)
+exit /b 0
+
+:STYLE_JAVA
+type NUL > "%FILE%.tmp"
+>> "%FILE%.tmp" echo // =============================================================================
+>> "%FILE%.tmp" echo // %APP_NAME% - %APP_DESC%
+>> "%FILE%.tmp" echo // =============================================================================
+>> "%FILE%.tmp" echo // Project      : %PROJECT%
+>> "%FILE%.tmp" echo // Developer    : %DEV_NAME% ^(%DEV_EMAIL%^)
+>> "%FILE%.tmp" echo // Website      : %URL%
+>> "%FILE%.tmp" echo // License      : %ORG%
+>> "%FILE%.tmp" echo // File         : %FILE%
+>> "%FILE%.tmp" echo // Description  : %DESC%
+>> "%FILE%.tmp" echo // Last Updated : %DATE_ID%
+>> "%FILE%.tmp" echo //
+>> "%FILE%.tmp" echo // IMPORTANT NOTE:
+>> "%FILE%.tmp" echo // Modification of this code is permitted for development purposes only.
+>> "%FILE%.tmp" echo // REMOVING OR MODIFYING THE DEVELOPER NAME IS STRICTLY PROHIBITED.
+>> "%FILE%.tmp" echo //
+>> "%FILE%.tmp" echo // LEGAL WARNING:
+>> "%FILE%.tmp" echo // Unauthorized distribution or modification of authorship information
+>> "%FILE%.tmp" echo // is subject to legal action under Indonesian Law:
+>> "%FILE%.tmp" echo // - UU No. 28 Tahun 2014 tentang Hak Cipta.
+>> "%FILE%.tmp" echo // - UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik ^(UU ITE^).
+>> "%FILE%.tmp" echo // =============================================================================
+>> "%FILE%.tmp" echo.
+type "%FILE%" >> "%FILE%.tmp"
+move /Y "%FILE%.tmp" "%FILE%" >nul
+echo     ADD %REL%  ^({%EXT%}^)
+exit /b 0
+
+:STYLE_BAT
+type NUL > "%FILE%.tmp"
+>> "%FILE%.tmp" echo REM =============================================================================
+>> "%FILE%.tmp" echo REM %APP_NAME% - %APP_DESC%
+>> "%FILE%.tmp" echo REM =============================================================================
+>> "%FILE%.tmp" echo REM Project      : %PROJECT%
+>> "%FILE%.tmp" echo REM Developer    : %DEV_NAME% ^(%DEV_EMAIL%^)
+>> "%FILE%.tmp" echo REM Website      : %URL%
+>> "%FILE%.tmp" echo REM License      : %ORG%
+>> "%FILE%.tmp" echo REM File         : %FILE%
+>> "%FILE%.tmp" echo REM Description  : %DESC%
+>> "%FILE%.tmp" echo REM Last Updated : %DATE_ID%
+>> "%FILE%.tmp" echo REM
+>> "%FILE%.tmp" echo REM IMPORTANT NOTE:
+>> "%FILE%.tmp" echo REM Modification of this code is permitted for development purposes only.
+>> "%FILE%.tmp" echo REM REMOVING OR MODIFYING THE DEVELOPER NAME IS STRICTLY PROHIBITED.
+>> "%FILE%.tmp" echo REM
+>> "%FILE%.tmp" echo REM LEGAL WARNING:
+>> "%FILE%.tmp" echo REM Unauthorized distribution or modification of authorship information
+>> "%FILE%.tmp" echo REM is subject to legal action under Indonesian Law:
+>> "%FILE%.tmp" echo REM - UU No. 28 Tahun 2014 tentang Hak Cipta.
+>> "%FILE%.tmp" echo REM - UU No. 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik ^(UU ITE^).
+>> "%FILE%.tmp" echo REM =============================================================================
+>> "%FILE%.tmp" echo.
+type "%FILE%" >> "%FILE%.tmp"
+move /Y "%FILE%.tmp" "%FILE%" >nul
+echo     ADD %REL%  ^({%EXT%}^)
+exit /b 0

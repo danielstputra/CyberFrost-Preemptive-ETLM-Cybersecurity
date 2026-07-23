@@ -61,8 +61,12 @@ coverage/
 
 # ── Temporary ──
 *.bak
+*.tmp
 tmp/
 temp/
+
+# ── Watermark backup ──
+watermark-backup_*/
 
 # Environment files (secrets)
 Backend/.env.railway
