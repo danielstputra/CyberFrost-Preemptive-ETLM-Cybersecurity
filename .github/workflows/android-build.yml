@@ -110,8 +110,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="v2026.07.23"
-          # Hapus asset lama jika ada
+          TAG="v${{ steps.version.outputs.versionName }}"
+          # Hapus release lama jika sudah ada (biar update)
           gh release delete "$TAG" --yes 2>/dev/null || true
           gh release create "$TAG" \
             --title "CyberFrost $TAG" \
