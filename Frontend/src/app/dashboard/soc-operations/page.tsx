@@ -35,7 +35,7 @@ export default function SocOperationsPage() {
   });
 
   const m = dash?.metrics || {};
-  const slaPct = m.totalResolved > 0 ? ((1 - (m.slaBreaches || 0) / m.totalResolved) * 100).toFixed(1) : 100;
+  const slaPct = m.totalResolved > 0 ? ((1 - (m.slaBreaches || 0) / m.totalResolved) * 100).toFixed(1) : '100';
 
   const METRICS = [
     { label: 'MTTR (Mean Time to Resolve)', value: `${m.mttr || 0} min`, icon: Clock, color: m.mttr > 240 ? '#FF003C' : '#00F6FF' },
