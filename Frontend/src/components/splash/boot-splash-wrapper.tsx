@@ -33,6 +33,15 @@ export function BootSplashWrapper() {
     }
   }, []);
 
+  // SAFETY: force hide splash setelah 5 detik (antisipasi stuck)
+  useEffect(() => {
+    if (!visible) return;
+    const safetyTimer = setTimeout(() => {
+      setVisible(false);
+    }, 5000);
+    return () => clearTimeout(safetyTimer);
+  }, [visible]);
+
   // Set firstLoad = false setelah boot selesai
   useEffect(() => {
     if (firstLoad.current && !visible) {
