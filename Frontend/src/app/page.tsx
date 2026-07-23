@@ -241,16 +241,10 @@ export default function LandingPage() {
                 {t('nav.signIn')} <ChevronRight className="h-4 w-4" />
               </HUDButton>
             </Link>
-            <a href="https://github.com/danielstputra/CyberFrost-Preemptive-ETLM-Cybersecurity/releases/latest/download/app-debug.apk"
+            <a href="https://github.com/danielstputra/CyberFrost-Preemptive-ETLM-Cybersecurity/releases/download/v2026.07.23/app-debug.apk"
                target="_blank" rel="noopener noreferrer"
                className="inline-flex items-center gap-2 px-4 py-2.5 text-[10px] font-mono font-bold tracking-wider uppercase angle-sm transition-all duration-200"
-               style={{ background: 'transparent', border: '1px solid #00F6FF', color: '#00F6FF' }}
-               onClick={e => {
-                 // Cek apakah release tersedia
-                 fetch('https://api.github.com/repos/danielstputra/CyberFrost-Preemptive-ETLM-Cybersecurity/releases/latest', { method: 'HEAD' })
-                   .then(r => { if (!r.ok) window.location.href = 'https://github.com/danielstputra/CyberFrost-Preemptive-ETLM-Cybersecurity/actions/workflows/android-build.yml'; })
-                   .catch(() => {});
-               }}>
+               style={{ background: 'transparent', border: '1px solid #00F6FF', color: '#00F6FF' }}>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Android APK
             </a>
