@@ -34,9 +34,16 @@ app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-// ── Swagger UI (lazy init — spec di-build saat pertama kali diakses) ──
-app.use('/api/v1/docs', swaggerUi.serve, (_req: any, _res: any, next: any) => next(),
-  swaggerUi.setup(getSwaggerSpec(), swaggerUiOptions));
+// ── Swagger UI (benar-benar lazy — spec di-build saat request pertama) ──
+app.use('/api/v1/docs', swaggerUi.serve, (req: any, res: any, next: any) => {
+  // Pastikan spec hanya di-build saat endpoint diakses
+  if (!req._swaggerSetup) {
+    req._swaggerSetup = true;
+    swaggerUi.setup(getSwaggerSpec(), swaggerUiOptions)(req, res, next);
+  } else {
+    next();
+  }
+});
 
 // ── Global rate limiter ──
 app.use(globalRateLimiter);
