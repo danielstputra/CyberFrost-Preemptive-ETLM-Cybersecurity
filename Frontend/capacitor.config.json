@@ -3,8 +3,13 @@
   "appName": "CyberFrost",
   "webDir": "out",
   "bundledWebRuntime": false,
+  "server": {
+    "url": "https://frontend-danielstputradev-6548s-projects.vercel.app",
+    "cleartext": false,
+    "allowNavigation": ["*.railway.app", "*.vercel.app"]
+  },
   "android": {
-    "allowMixedContent": true,
+    "allowMixedContent": false,
     "webContentsDebuggingEnabled": true
   }
 }
