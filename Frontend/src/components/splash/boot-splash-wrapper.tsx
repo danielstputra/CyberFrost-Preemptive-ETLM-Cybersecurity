@@ -1,31 +1,55 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef, createContext, useContext } from 'react';
+import { usePathname } from 'next/navigation';
 import { BootSplash } from './boot-splash';
 
+const SplashContext = createContext<{ show: (mini?: boolean) => void }>({ show: () => {} });
+export const useSplash = () => useContext(SplashContext);
+
 export function BootSplashWrapper() {
-  const [showSplash, setShowSplash] = useState(true);
-  const [isCapacitor, setIsCapacitor] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [isMini, setIsMini] = useState(false);
+  const firstLoad = useRef(true);
+  const pathname = usePathname();
 
+  const showSplash = useCallback((mini = true) => {
+    setIsMini(mini);
+    setVisible(true);
+  }, []);
+
+  const hideSplash = useCallback(() => {
+    setVisible(false);
+  }, []);
+
+  // Initial boot — delay biar gak black box flash
   useEffect(() => {
-    // Deteksi apakah running di Capacitor (APK) atau web
-    const ua = navigator.userAgent || '';
-    const cap = typeof (window as any).Capacitor !== 'undefined';
-    setIsCapacitor(cap || ua.includes('Capacitor'));
-
-    // Cek localStorage untuk skip splash di web
-    if (!cap && !ua.includes('Capacitor')) {
-      const skip = localStorage.getItem('splashShown');
-      if (skip) {
-        setShowSplash(false);
-      } else {
-        // Web: splash sekali, lalu simpan flag
-        localStorage.setItem('splashShown', 'true');
-      }
+    if (firstLoad.current) {
+      const showTimer = setTimeout(() => {
+        setIsMini(false);
+        setVisible(true);
+      }, 150);
+      return () => clearTimeout(showTimer);
     }
   }, []);
 
-  if (!showSplash) return null;
+  // Set firstLoad = false setelah boot selesai
+  useEffect(() => {
+    if (firstLoad.current && !visible) {
+      firstLoad.current = false;
+    }
+  }, [visible]);
 
-  return <BootSplash onFinish={() => setShowSplash(false)} />;
+  // Navigasi halaman → splash mini
+  useEffect(() => {
+    if (!firstLoad.current && pathname) {
+      showSplash(true);
+    }
+  }, [pathname, showSplash]);
+
+  return (
+    <SplashContext.Provider value={{ show: showSplash }}>
+      {visible && <BootSplash mini={isMini} onFinish={hideSplash} />}
+    </SplashContext.Provider>
+  );
 }
