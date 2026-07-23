@@ -20,8 +20,9 @@ const API_URL = process.env.API_GATEWAY_URL || 'http://localhost:4000';
 // Lazy init — swagger-jsdoc scan hanya ketika endpoint /docs dipanggil
 // Biar server startup gak crash kalo ada file path yang beda di production
 function buildSpec() {
+  // Lazy require — tidak dijalankan saat startup
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const swaggerJsdoc = require('swagger-jsdoc') as typeof swaggerJsdoc;
+  const swaggerJsdoc: (...args: any[]) => any = require('swagger-jsdoc');
 
   const options: swaggerJsdoc.Options = {
     definition: {
