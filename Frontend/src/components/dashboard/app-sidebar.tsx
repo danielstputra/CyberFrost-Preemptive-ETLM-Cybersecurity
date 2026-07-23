@@ -8,7 +8,7 @@ import {
   SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton,
   SidebarMenuItem, SidebarSeparator, useSidebar,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, Shield, Bug, Radio, Search, ShieldOff, Settings, Brain, Bell, Users, Radar, Webhook, Globe, Activity, Target } from 'lucide-react';
+import { LayoutDashboard, Shield, Bug, Radio, Search, ShieldOff, Settings, Brain, Bell, Users, Radar, Webhook, Globe, Activity, Target, CheckCircle } from 'lucide-react';
 import { useTranslation } from '@/providers/translation-provider';
 import { LangSwitcher } from '@/components/ui/lang-switcher';
 import { useAuthStore } from '@/store/auth-store';
