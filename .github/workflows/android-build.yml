@@ -108,3 +108,24 @@ jobs:
           path: Frontend/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: warn
           retention-days: 30
+
+      - name: Update Release
+        if: github.ref == 'refs/heads/main'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v2026.07.23"
+          REPO="${{ github.repository }}"
+          APK="Frontend/android/app/build/outputs/apk/debug/app-debug.apk"
+
+          # Delete old release + tag if exist
+          gh release delete "$TAG" --yes 2>/dev/null || true
+          curl -s -X DELETE -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/$REPO/git/refs/tags/$TAG" 2>/dev/null || true
+
+          # Create new release
+          gh release create "$TAG" \
+            --title "CyberFrost APK" \
+            --notes "Build: ${{ steps.version.outputs.versionName }} Commit: ${{ github.sha }}" \
+            "$APK" \
+            --target ${{ github.sha }} --latest
